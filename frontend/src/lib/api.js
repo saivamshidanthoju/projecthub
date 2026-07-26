@@ -340,3 +340,39 @@ export const dashboardApi = {
     return response.data?.activity || {};
   },
 };
+
+export const notificationsApi = {
+  async list(token) {
+    const response = await apiRequest("/notifications?limit=20", { token });
+    return response.data || [];
+  },
+
+  async getUnreadCount(token) {
+    const response = await apiRequest("/notifications/unread-count", { token });
+    return response.data?.unreadCount || 0;
+  },
+
+  async markRead(token, id) {
+    const response = await apiRequest(`/notifications/${id}/read`, {
+      method: "PUT",
+      token,
+    });
+    return response.data;
+  },
+
+  async markAllRead(token) {
+    const response = await apiRequest("/notifications/read-all", {
+      method: "PUT",
+      token,
+    });
+    return response.data;
+  },
+
+  async remove(token, id) {
+    await apiRequest(`/notifications/${id}`, {
+      method: "DELETE",
+      token,
+    });
+  },
+};
+

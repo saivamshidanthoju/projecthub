@@ -1,14 +1,66 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getRoleLabel } from "../lib/rbac";
+import { notificationsApi } from "../lib/api";
 
 export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, token, logout } = useAuth();
   const pathname = location.pathname;
   const [profileOpen, setProfileOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const count = await notificationsApi.getUnreadCount(token);
+        setUnreadCount(count);
+      } catch (err) {
+        console.error("Failed to load notifications count:", err);
+      }
+    };
+    if (token) {
+      fetchCounts();
+      const interval = setInterval(fetchCounts, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [token]);
+
+  const toggleNotifications = async () => {
+    setNotificationsOpen(!notificationsOpen);
+    if (!notificationsOpen && token) {
+      try {
+        const list = await notificationsApi.list(token);
+        setNotifications(list);
+      } catch (err) {
+        console.error("Failed to load notifications list:", err);
+      }
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      await notificationsApi.markAllRead(token);
+      setUnreadCount(0);
+      setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleMarkRead = async (id) => {
+    try {
+      await notificationsApi.markRead(token, id);
+      setUnreadCount(c => Math.max(c - 1, 0));
+      setNotifications(prev => prev.map(n => n.notification_id === id ? { ...n, is_read: true } : n));
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
     document.documentElement.classList.remove("dark");
@@ -116,14 +168,60 @@ export default function Header() {
           </Link>
         )}
 
-        <button
-          type="button"
-          className="material-symbols-outlined text-on-surface-variant p-xs hover:bg-surface-container transition-colors rounded-full cursor-pointer relative"
-          title="Notifications"
-        >
-          notifications
-          {(isTeamPage || isCalendarPage) && <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>}
-        </button>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={toggleNotifications}
+            className="material-symbols-outlined text-on-surface-variant p-xs hover:bg-surface-container transition-colors rounded-full cursor-pointer relative"
+            title="Notifications"
+          >
+            notifications
+            {unreadCount > 0 && (
+              <span className="absolute top-0.5 right-0.5 w-3.5 h-3.5 bg-error text-white text-[8px] font-bold rounded-full flex items-center justify-center">
+                {unreadCount}
+              </span>
+            )}
+          </button>
+
+          {notificationsOpen && (
+            <div className="absolute right-0 top-11 w-80 bg-surface-main border border-border-subtle rounded-xl shadow-lg py-2 z-50 animate-fade-in text-left">
+              <div className="px-4 py-2 border-b border-border-subtle flex justify-between items-center select-none">
+                <span className="font-title-md text-sm font-bold text-on-surface">Notifications</span>
+                {unreadCount > 0 && (
+                  <button 
+                    onClick={handleMarkAllRead}
+                    className="text-[11px] text-primary hover:underline font-semibold"
+                  >
+                    Mark all read
+                  </button>
+                )}
+              </div>
+              <div className="max-h-64 overflow-y-auto custom-scrollbar divide-y divide-border-subtle">
+                {notifications.map((n) => (
+                  <div 
+                    key={n.notification_id || n.id} 
+                    onClick={() => handleMarkRead(n.notification_id || n.id)}
+                    className={`px-4 py-3 hover:bg-surface-container-low transition-colors cursor-pointer text-left flex flex-col gap-xs ${
+                      !n.is_read ? "bg-primary-container/10 font-medium" : ""
+                    }`}
+                  >
+                    <p className="text-body-sm text-on-surface leading-snug">
+                      {n.message}
+                    </p>
+                    <span className="text-[10px] text-on-surface-variant/70">
+                      {new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                ))}
+                {notifications.length === 0 && (
+                  <p className="text-center text-body-sm text-on-surface-variant/70 py-6 select-none">
+                    No new notifications.
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
 
         <div className="h-8 w-[1px] bg-border-subtle mx-xs"></div>
 
