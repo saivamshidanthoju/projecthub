@@ -322,8 +322,8 @@ export default function Tasks() {
       </button>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-md">
-          <div className="bg-surface-main dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant w-full max-w-[448px] rounded-2xl p-lg shadow-xl animate-fade-in text-left">
+        <div className="fixed inset-0 w-screen h-screen bg-black/50 backdrop-blur-sm z-[999] flex items-center justify-center p-md shrink-0 animate-fade-in">
+          <div className="bg-surface-main dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant w-full max-w-[448px] rounded-xl p-lg shadow-xl text-left">
             <div className="flex justify-between items-center mb-lg">
               <h3 className="font-headline-md text-headline-md text-text-heading dark:text-surface-main font-bold">
                 Create New Task
@@ -343,7 +343,7 @@ export default function Tasks() {
                 </label>
                 <select
                   id="task_project"
-                  className="w-full h-11 px-md bg-surface-sunken dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-on-surface dark:text-surface-main cursor-pointer"
+                  className="w-full h-11 px-md bg-surface border border-border-subtle dark:border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-on-surface dark:text-surface-main cursor-pointer"
                   value={selectedProjectId}
                   onChange={(e) => setSelectedProjectId(e.target.value)}
                   required
@@ -362,7 +362,7 @@ export default function Tasks() {
                 </label>
                 <input
                   id="task_title"
-                  className="w-full h-11 px-md bg-surface-sunken dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none text-on-surface dark:text-surface-main"
+                  className="w-full h-11 px-md bg-surface border border-border-subtle dark:border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-on-surface dark:text-surface-main"
                   placeholder="e.g. Write user testing protocols"
                   type="text"
                   value={newTaskTitle}
@@ -378,7 +378,7 @@ export default function Tasks() {
                 <textarea
                   id="task_desc"
                   rows="3"
-                  className="w-full p-md bg-surface-sunken dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none text-on-surface dark:text-surface-main resize-none"
+                  className="w-full p-md bg-surface border border-border-subtle dark:border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-on-surface dark:text-surface-main resize-none"
                   placeholder="Summarize the core requirements of this task..."
                   value={newTaskDesc}
                   onChange={(e) => setNewTaskDesc(e.target.value)}
@@ -393,7 +393,7 @@ export default function Tasks() {
                   </label>
                   <select
                     id="task_priority"
-                    className="w-full h-11 px-md bg-surface-sunken dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-on-surface dark:text-surface-main cursor-pointer"
+                    className="w-full h-11 px-md bg-surface border border-border-subtle dark:border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-on-surface dark:text-surface-main cursor-pointer"
                     value={newTaskPriority}
                     onChange={(e) => setNewTaskPriority(e.target.value)}
                   >
@@ -410,7 +410,7 @@ export default function Tasks() {
                   </label>
                   <select
                     id="task_col"
-                    className="w-full h-11 px-md bg-surface-sunken dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-on-surface dark:text-surface-main cursor-pointer"
+                    className="w-full h-11 px-md bg-surface border border-border-subtle dark:border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-on-surface dark:text-surface-main cursor-pointer"
                     value={newTaskCol}
                     onChange={(e) => setNewTaskCol(e.target.value)}
                   >
@@ -424,7 +424,7 @@ export default function Tasks() {
 
               <button
                 type="submit"
-                className="w-full h-12 bg-primary text-white font-button-text text-button-text rounded-xl shadow-md hover:bg-surface-tint active:scale-[0.98] transition-all flex items-center justify-center gap-xs cursor-pointer"
+                className="w-full h-12 bg-primary text-white font-button-text text-button-text rounded-lg shadow-md hover:bg-surface-tint active:scale-[0.98] transition-all flex items-center justify-center gap-xs cursor-pointer"
               >
                 <span className="material-symbols-outlined">add</span> Create Task
               </button>

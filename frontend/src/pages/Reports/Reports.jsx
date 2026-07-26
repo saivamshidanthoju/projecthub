@@ -169,7 +169,7 @@ export default function Reports() {
           ) : (
             <>
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">
-                <div className="lg:col-span-8 bg-surface-main dark:bg-inverse-surface p-lg rounded-2xl border border-border-subtle dark:border-outline-variant shadow-sm flex flex-col justify-between min-h-[340px]">
+                <div className="lg:col-span-8 bg-surface-main dark:bg-inverse-surface p-lg rounded-xl border border-border-subtle/70 dark:border-outline-variant/30 shadow-sm flex flex-col justify-between min-h-[340px]">
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="font-title-md text-title-md font-bold text-on-surface dark:text-surface-main">
@@ -229,7 +229,7 @@ export default function Reports() {
                   </div>
                 </div>
 
-                <div className="lg:col-span-4 bg-surface-main dark:bg-inverse-surface p-lg rounded-2xl border border-border-subtle dark:border-outline-variant shadow-sm flex flex-col justify-between min-h-[340px]">
+                <div className="lg:col-span-4 bg-surface-main dark:bg-inverse-surface p-lg rounded-xl border border-border-subtle/70 dark:border-outline-variant/30 shadow-sm flex flex-col justify-between min-h-[340px]">
                   <div>
                     <h3 className="font-title-md text-title-md font-bold text-on-surface dark:text-surface-main">
                       Resource Allocation
@@ -283,7 +283,7 @@ export default function Reports() {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">
-                <div className="lg:col-span-5 bg-surface-main dark:bg-inverse-surface p-lg rounded-2xl border border-border-subtle dark:border-outline-variant shadow-sm flex flex-col justify-between min-h-[340px]">
+                <div className="lg:col-span-5 bg-surface-main dark:bg-inverse-surface p-lg rounded-xl border border-border-subtle/70 dark:border-outline-variant/30 shadow-sm flex flex-col justify-between min-h-[340px]">
                   <div>
                     <h3 className="font-title-md text-title-md font-bold text-on-surface dark:text-surface-main">
                       Team Productivity
@@ -337,7 +337,7 @@ export default function Reports() {
                   </div>
                 </div>
 
-                <div className="lg:col-span-7 bg-surface-main dark:bg-inverse-surface p-lg rounded-2xl border border-border-subtle dark:border-outline-variant shadow-sm flex flex-col justify-between min-h-[340px]">
+                <div className="lg:col-span-7 bg-surface-main dark:bg-inverse-surface p-lg rounded-xl border border-border-subtle/70 dark:border-outline-variant/30 shadow-sm flex flex-col justify-between min-h-[340px]">
                   <div>
                     <h3 className="font-title-md text-title-md font-bold text-on-surface dark:text-surface-main">
                       Monthly Project ROI
@@ -409,7 +409,7 @@ export default function Reports() {
                 </div>
               </div>
 
-              <div className="bg-surface-main dark:bg-inverse-surface rounded-2xl border border-border-subtle dark:border-outline-variant shadow-sm flex flex-col overflow-hidden">
+              <div className="bg-surface-main dark:bg-inverse-surface rounded-xl border border-border-subtle/70 dark:border-outline-variant/30 shadow-sm flex flex-col overflow-hidden">
                 <div className="p-lg border-b border-border-subtle flex items-center justify-between">
                   <div className="text-left">
                     <h3 className="font-title-md text-title-md font-bold text-on-surface dark:text-surface-main">

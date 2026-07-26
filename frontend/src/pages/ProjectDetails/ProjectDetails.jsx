@@ -306,33 +306,33 @@ export default function ProjectDetails() {
                 </div>
               </div>
 
-              <div className="col-span-12 lg:col-span-7 bg-surface-main dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant rounded-xl p-lg shadow-sm flex flex-col h-[400px]">
-                <div className="flex items-center gap-sm mb-lg border-b border-border-subtle dark:border-outline-variant pb-md select-none">
+              <div className="col-span-12 lg:col-span-7 bg-surface-main dark:bg-inverse-surface border border-border-subtle/70 dark:border-outline-variant/30 rounded-xl p-lg shadow-sm flex flex-col h-[400px] text-left">
+                <div className="flex items-center gap-sm mb-lg border-b border-border-subtle/50 dark:border-outline-variant/30 pb-md select-none">
                   <span className="material-symbols-outlined text-primary dark:text-inverse-primary">chat_bubble</span>
                   <h3 className="font-title-lg text-title-lg text-text-heading dark:text-surface-main font-bold">
                     Collaboration Chat
                   </h3>
                 </div>
 
-                <div className="flex-1 overflow-y-auto pr-sm custom-scrollbar space-y-lg mb-lg">
+                <div className="flex-1 overflow-y-auto pr-sm custom-scrollbar space-y-md mb-lg">
                   {comments.map((comment) => {
                     const authorName = comment.first_name ? `${comment.first_name} ${comment.last_name || ""}` : "Team Member";
                     const initials = authorName.split(" ").map(n => n[0]).join("").toUpperCase();
                     return (
-                      <div key={comment.comment_id || comment.id} className="flex gap-md">
-                        <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-bold shrink-0">
+                      <div key={comment.comment_id || comment.id} className="flex gap-md items-start">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 text-primary border border-primary/10 flex items-center justify-center text-[10px] font-bold shrink-0 select-none">
                           {initials}
                         </div>
-                        <div className="bg-surface-sunken dark:bg-on-surface-variant/20 p-md rounded-xl rounded-tl-none border border-border-subtle dark:border-outline-variant flex-1">
-                          <div className="flex justify-between items-center mb-xs select-none">
-                            <span className="font-title-md text-sm text-text-heading dark:text-surface-main font-bold">
+                        <div className="flex-1 bg-surface-sunken dark:bg-on-surface-variant/10 p-md rounded-lg border border-border-subtle/50">
+                          <div className="flex justify-between items-center mb-1 select-none">
+                            <span className="font-title-md text-xs text-text-heading dark:text-surface-main font-bold">
                               {authorName}
                             </span>
-                            <span className="text-[10px] text-on-surface-variant dark:text-surface-variant">
+                            <span className="text-[9px] font-medium text-on-surface-variant/80">
                               {new Date(comment.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
                           </div>
-                          <p className="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant">
+                          <p className="font-body-md text-sm text-on-surface-variant dark:text-surface-variant mt-0.5 whitespace-pre-wrap leading-relaxed">
                             {comment.comment}
                           </p>
                         </div>
@@ -343,9 +343,9 @@ export default function ProjectDetails() {
                 </div>
 
                 <form onSubmit={handleSendComment} className="flex items-end gap-md">
-                  <div className="flex-1 bg-surface-sunken dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant rounded-xl p-sm focus-within:border-primary dark:focus-within:border-inverse-primary transition-colors flex flex-col gap-xs">
+                  <div className="flex-1 bg-surface-sunken dark:bg-inverse-surface border border-border-subtle/70 dark:border-outline-variant/30 rounded-lg p-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all flex flex-col gap-xs">
                     <textarea
-                      className="w-full bg-transparent border-none focus:ring-0 text-body-md text-on-surface dark:text-surface-main resize-none h-20 placeholder:text-on-surface-variant/50 outline-none"
+                      className="w-full bg-transparent border-none focus:ring-0 text-sm text-on-surface dark:text-surface-main resize-none h-16 placeholder:text-on-surface-variant/50 outline-none pl-2 pt-1"
                       placeholder="Type your message..."
                       value={newComment}
                       onChange={(e) => setNewComment(e.target.value)}
@@ -358,12 +358,13 @@ export default function ProjectDetails() {
                       required
                     ></textarea>
                     
-                    <div className="flex items-center justify-between mt-xs border-t border-border-subtle dark:border-outline-variant/30 pt-xs px-xs select-none">
+                    <div className="flex items-center justify-between mt-xs border-t border-border-subtle/40 dark:border-outline-variant/20 pt-sm px-xs select-none">
                       <div className="flex gap-sm">
                         <button 
                           type="button" 
                           onClick={() => fileInputRef.current?.click()}
-                          className="material-symbols-outlined text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors text-[20px] cursor-pointer"
+                          className="material-symbols-outlined text-on-surface-variant/70 hover:text-primary dark:hover:text-inverse-primary transition-colors text-[20px] cursor-pointer"
+                          title="Attach workspace file"
                         >
                           attach_file
                         </button>
@@ -377,9 +378,9 @@ export default function ProjectDetails() {
                       
                       <button
                         type="submit"
-                        className="bg-primary text-white p-xs rounded-lg active:scale-95 transition-transform cursor-pointer"
+                        className="bg-primary text-white w-7 h-7 flex items-center justify-center rounded-md active:scale-95 hover:brightness-105 transition-transform cursor-pointer"
                       >
-                        <span className="material-symbols-outlined">send</span>
+                        <span className="material-symbols-outlined text-[16px] font-bold">send</span>
                       </button>
                     </div>
                   </div>

@@ -340,9 +340,9 @@ export default function Team() {
 
       {isInviteOpen && (
         <div className="fixed inset-0 w-screen h-screen bg-black/50 backdrop-blur-sm z-[999] flex items-center justify-center p-md shrink-0">
-          <div className="bg-surface-main border border-border-subtle rounded-2xl w-full max-w-[448px] p-lg shadow-xl animate-fade-in text-left">
-            <div className="flex justify-between items-center border-b border-border-subtle pb-md">
-              <h3 className="font-title-lg text-title-lg font-bold text-on-surface flex items-center gap-sm">
+          <div className="bg-surface-main dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant w-full max-w-[448px] rounded-xl p-lg shadow-xl animate-fade-in text-left">
+            <div className="flex justify-between items-center border-b border-border-subtle dark:border-outline-variant/30 pb-md">
+              <h3 className="font-title-lg text-title-lg font-bold text-on-surface dark:text-surface-main flex items-center gap-sm">
                 <span className="material-symbols-outlined text-primary">person_add</span>
                 Invite New Colleague
               </h3>
@@ -365,7 +365,7 @@ export default function Team() {
                   placeholder="e.g. Liam Neeson"
                   value={inviteName}
                   onChange={(e) => setInviteName(e.target.value)}
-                  className="w-full border border-border-subtle rounded-xl px-md py-sm bg-surface-sunken text-body-md outline-none focus:border-primary text-on-surface"
+                  className="w-full border border-border-subtle rounded-lg px-md py-sm bg-surface text-body-md outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-on-surface"
                 />
               </div>
 
@@ -379,7 +379,7 @@ export default function Team() {
                   placeholder="e.g. liam@phub.io"
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
-                  className="w-full border border-border-subtle rounded-xl px-md py-sm bg-surface-sunken text-body-md outline-none focus:border-primary text-on-surface"
+                  className="w-full border border-border-subtle rounded-lg px-md py-sm bg-surface text-body-md outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-on-surface"
                 />
               </div>
 
@@ -391,7 +391,7 @@ export default function Team() {
                   <select
                     value={inviteRole}
                     onChange={(e) => setInviteRole(e.target.value)}
-                    className="w-full border border-border-subtle rounded-xl px-md h-10 bg-surface-sunken text-body-sm outline-none text-on-surface cursor-pointer"
+                    className="w-full border border-border-subtle rounded-lg px-md h-10 bg-surface text-body-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-on-surface cursor-pointer"
                   >
                     <option value="Team Member">Team Member</option>
                     <option value="Project Manager">Project Manager</option>
@@ -404,7 +404,7 @@ export default function Team() {
                     Department
                   </label>
                   <select
-                    className="w-full border border-border-subtle rounded-xl px-md h-10 bg-surface-sunken text-body-sm outline-none text-on-surface cursor-pointer"
+                    className="w-full border border-border-subtle rounded-lg px-md h-10 bg-surface text-body-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-on-surface cursor-pointer"
                     value={selectedDept === "All Departments" ? "Engineering" : selectedDept}
                     disabled
                   >
@@ -424,7 +424,7 @@ export default function Team() {
                   type="text"
                   value={inviteLocation}
                   onChange={(e) => setInviteLocation(e.target.value)}
-                  className="w-full border border-border-subtle rounded-xl px-md py-sm bg-surface-sunken text-body-md outline-none focus:border-primary text-on-surface"
+                  className="w-full border border-border-subtle rounded-lg px-md py-sm bg-surface text-body-md outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-on-surface"
                 />
               </div>
 
@@ -432,13 +432,13 @@ export default function Team() {
                 <button
                   type="button"
                   onClick={() => setIsInviteOpen(false)}
-                  className="px-lg h-10 border border-border-subtle rounded-xl hover:bg-surface-container font-button-text text-button-text text-on-surface cursor-pointer"
+                  className="px-lg h-10 border border-border-subtle rounded-lg hover:bg-surface-container font-button-text text-button-text text-on-surface cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-lg h-10 bg-primary text-white rounded-xl hover:brightness-110 shadow-md font-button-text text-button-text cursor-pointer"
+                  className="px-lg h-10 bg-primary text-white rounded-lg hover:brightness-110 shadow-md font-button-text text-button-text cursor-pointer font-bold"
                 >
                   Send Invitation
                 </button>

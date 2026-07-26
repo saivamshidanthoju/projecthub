@@ -389,11 +389,11 @@ export default function Calendar() {
 
       {/* Add Event Modal */}
       {isAddEventOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-md animate-fade-in">
-          <div className="bg-surface-main border border-border-subtle w-full max-w-[448px] rounded-2xl p-lg shadow-xl text-left">
+        <div className="fixed inset-0 w-screen h-screen bg-black/50 backdrop-blur-sm z-[999] flex items-center justify-center p-md shrink-0 animate-fade-in">
+          <div className="bg-surface-main dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant w-full max-w-[448px] rounded-xl p-lg shadow-xl text-left">
             <div className="flex justify-between items-center mb-lg">
-              <h3 className="font-headline-md text-headline-md font-bold">Create Calendar Event</h3>
-              <button onClick={() => setIsAddEventOpen(false)} className="p-1 rounded-full text-on-surface-variant hover:bg-surface-container">
+              <h3 className="font-headline-md text-headline-md font-bold text-on-surface dark:text-surface-main">Create Calendar Event</h3>
+              <button onClick={() => setIsAddEventOpen(false)} className="p-1 rounded-full text-on-surface-variant hover:bg-surface-container cursor-pointer">
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
@@ -402,7 +402,7 @@ export default function Calendar() {
               <div className="flex flex-col gap-xs">
                 <label className="font-label-md text-label-md text-on-surface-variant">Event Title</label>
                 <input
-                  className="w-full h-11 px-md bg-surface-sunken border border-border-subtle rounded-lg text-body-md focus:ring-2 focus:ring-primary outline-none"
+                  className="w-full h-11 px-md bg-surface border border-border-subtle rounded-lg text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                   placeholder="e.g. Q4 Executive Sync"
                   type="text"
                   value={eventTitle}
@@ -414,7 +414,7 @@ export default function Calendar() {
               <div className="flex flex-col gap-xs">
                 <label className="font-label-md text-label-md text-on-surface-variant">Description</label>
                 <textarea
-                  className="w-full p-md bg-surface-sunken border border-border-subtle rounded-lg text-body-md focus:ring-2 focus:ring-primary outline-none resize-none"
+                  className="w-full p-md bg-surface border border-border-subtle rounded-lg text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none resize-none"
                   placeholder="Details about the meeting or event..."
                   rows="3"
                   value={eventDescription}
@@ -426,7 +426,7 @@ export default function Calendar() {
                 <div className="flex flex-col gap-xs">
                   <label className="font-label-md text-label-md text-on-surface-variant">Date</label>
                   <input
-                    className="w-full h-11 px-md bg-surface-sunken border border-border-subtle rounded-lg text-body-md focus:ring-2 focus:ring-primary outline-none"
+                    className="w-full h-11 px-md bg-surface border border-border-subtle rounded-lg text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                     type="date"
                     value={eventDate}
                     onChange={(e) => setEventDate(e.target.value)}
@@ -437,7 +437,7 @@ export default function Calendar() {
                 <div className="flex flex-col gap-xs">
                   <label className="font-label-md text-label-md text-on-surface-variant">Time</label>
                   <input
-                    className="w-full h-11 px-md bg-surface-sunken border border-border-subtle rounded-lg text-body-md focus:ring-2 focus:ring-primary outline-none"
+                    className="w-full h-11 px-md bg-surface border border-border-subtle rounded-lg text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                     type="time"
                     value={eventTime}
                     onChange={(e) => setEventTime(e.target.value)}
@@ -448,7 +448,7 @@ export default function Calendar() {
               <div className="flex flex-col gap-xs">
                 <label className="font-label-md text-label-md text-on-surface-variant">Label Color</label>
                 <select
-                  className="w-full h-11 px-md bg-surface-sunken border border-border-subtle rounded-lg text-body-md focus:ring-2 focus:ring-primary outline-none cursor-pointer"
+                  className="w-full h-11 px-md bg-surface border border-border-subtle rounded-lg text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none cursor-pointer"
                   value={eventColor}
                   onChange={(e) => setEventColor(e.target.value)}
                 >
@@ -461,7 +461,7 @@ export default function Calendar() {
 
               <button
                 type="submit"
-                className="w-full h-12 bg-primary text-white font-button-text rounded-xl shadow hover:bg-surface-tint active:scale-[0.98] transition-all flex items-center justify-center gap-xs"
+                className="w-full h-12 bg-primary text-white font-button-text rounded-lg shadow hover:bg-surface-tint active:scale-[0.98] transition-all flex items-center justify-center gap-xs cursor-pointer"
               >
                 <span className="material-symbols-outlined">check</span> Save Event
               </button>
@@ -472,29 +472,29 @@ export default function Calendar() {
 
       {/* View Event Details Modal */}
       {selectedEvent && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-md animate-fade-in">
-          <div className="bg-surface-main border border-border-subtle w-full max-w-[400px] rounded-2xl p-lg shadow-xl text-left">
+        <div className="fixed inset-0 w-screen h-screen bg-black/50 backdrop-blur-sm z-[999] flex items-center justify-center p-md shrink-0 animate-fade-in">
+          <div className="bg-surface-main dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant w-full max-w-[400px] rounded-xl p-lg shadow-xl text-left">
             <div className="flex justify-between items-center mb-md">
-              <h3 className="font-headline-md text-headline-md font-bold text-text-heading">{selectedEvent.title}</h3>
-              <button onClick={() => setSelectedEvent(null)} className="p-1 rounded-full text-on-surface-variant hover:bg-surface-container">
+              <h3 className="font-headline-md text-headline-md font-bold text-text-heading dark:text-surface-main">{selectedEvent.title}</h3>
+              <button onClick={() => setSelectedEvent(null)} className="p-1 rounded-full text-on-surface-variant hover:bg-surface-container cursor-pointer">
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
             
             <div className="space-y-sm text-sm mb-lg">
-              <p className="text-on-surface-variant">
-                <span className="font-semibold text-on-surface">Date:</span> {new Date(selectedEvent.event_date).toLocaleDateString()}
+              <p className="text-on-surface-variant dark:text-surface-variant">
+                <span className="font-semibold text-on-surface dark:text-surface-main">Date:</span> {new Date(selectedEvent.event_date).toLocaleDateString()}
               </p>
               {selectedEvent.event_time && (
-                <p className="text-on-surface-variant">
-                  <span className="font-semibold text-on-surface">Time:</span> {selectedEvent.event_time}
+                <p className="text-on-surface-variant dark:text-surface-variant">
+                  <span className="font-semibold text-on-surface dark:text-surface-main">Time:</span> {selectedEvent.event_time}
                 </p>
               )}
-              <p className="text-on-surface-variant">
-                <span className="font-semibold text-on-surface">Category:</span> <span className="capitalize">{selectedEvent.color} label</span>
+              <p className="text-on-surface-variant dark:text-surface-variant">
+                <span className="font-semibold text-on-surface dark:text-surface-main">Category:</span> <span className="capitalize">{selectedEvent.color} label</span>
               </p>
-              <p className="text-on-surface-variant leading-relaxed">
-                <span className="font-semibold text-on-surface block mb-xs">Description:</span>
+              <p className="text-on-surface-variant dark:text-surface-variant leading-relaxed">
+                <span className="font-semibold text-on-surface dark:text-surface-main block mb-xs">Description:</span>
                 {selectedEvent.description || "No description provided."}
               </p>
             </div>
