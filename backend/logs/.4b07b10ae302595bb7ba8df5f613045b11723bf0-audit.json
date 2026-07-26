@@ -1,0 +1,20 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "C:\\Users\\saiva\\OneDrive\\Desktop\\projecthub\\backend\\logs\\.4b07b10ae302595bb7ba8df5f613045b11723bf0-audit.json",
+    "files": [
+        {
+            "date": 1784994874308,
+            "name": "C:\\Users\\saiva\\OneDrive\\Desktop\\projecthub\\backend\\logs\\application-2026-07-25.log",
+            "hash": "55228c587408d0c9dafd1290abd313011b3ad293a10df411bac78929d573c4ec"
+        },
+        {
+            "date": 1785059640463,
+            "name": "C:\\Users\\saiva\\OneDrive\\Desktop\\projecthub\\backend\\logs\\application-2026-07-26.log",
+            "hash": "7944feb904cae3e4d9a4471a4fafab45779b1a62c5bdbea89aecc7554bc5220d"
+        }
+    ],
+    "hashType": "sha256"
+}

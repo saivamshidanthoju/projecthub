@@ -1,40 +1,25 @@
 import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
 import Header from "../../components/Header";
-
-const initialComments = [
-  {
-    id: "c-1",
-    author: "Alex Chen",
-    role: "Engineering Lead",
-    avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuAK6Oy0TuyX-beKCJs3HbLVZZ_r7pX6BPLQjwJM1botzflahsFX4XWKDNJ895EAU0aTLUMOHMMG3ntqcJUH-X9TzvSpCJfaQ8_RKWyfGKoh7p7HUKI4mQKskISZ9IJyxlGEhyM6WahZ3d6iztMYAqHI5Tx6td8xHxUncvMAf_ZFPWf9bhjdibE_XSorBGUWlc5GbhHwqbstrv31LHbYoM6Yzj4zKDu2z3uUtAkp_NnTNkGyGNgtoDADQ_cVBwzUgwWs4YIDkzJyV9U",
-    time: "2h ago",
-    content: "Just uploaded the updated API schema for the ledger module. Sarah, please review the security endpoints when you have a moment."
-  },
-  {
-    id: "c-2",
-    author: "Sarah Jenkins",
-    role: "UX Director",
-    avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuCrn7t0HN7PhrbdeaJZ_UjjvNFk2PsP60uu1diOExqNg4cOIaoB-6x6mhyexOMqoRbDxmwyf2TxWVO8f0Wt-UDm8i1dsFbWKlfY3RqhB_idSHiMwa_W-Hgp3Pm2e8_5SYMnrlLR7GjL-2oJByVf-dftXtKHed4p9_VsxGm1toYeYOHHhuK8tNiJdWTp9uU1nDBnE6SlkpJgoaj9hTrlI_vsGWD1UTUs0Bo1i3HUrIQv_h7WiNjwGeLpA-dR0PUpBg3ImZf-XNuF5CE",
-    time: "45m ago",
-    content: "On it! Will finalize the UX flows by EOD too."
-  }
-];
-
-const initialTasks = [
-  { id: "t-1", title: "API Schema Core Ledger", status: "Completed", assignee: "Alex Chen", priority: "High" },
-  { id: "t-2", title: "Endpoint Telemetry Logging", status: "In Progress", assignee: "Alex Chen", priority: "Medium" },
-  { id: "t-3", title: "Rate Limiter Configuration", status: "Review", assignee: "Marcus Thorne", priority: "High" },
-  { id: "t-4", title: "DDoS rate throttling rules", status: "To Do", assignee: "Elena Rodriguez", priority: "Low" }
-];
+import { useAuth } from "../../context/AuthContext";
+import { projectsApi, tasksApi, commentsApi, attachmentsApi } from "../../lib/api";
 
 export default function ProjectDetails() {
+  const { projectId } = useParams();
+  const { token, user } = useAuth();
+  
   const [activeTab, setActiveTab] = useState("Overview");
-  const [comments, setComments] = useState(initialComments);
-  const [tasksList, setTasksList] = useState(initialTasks);
+  const [project, setProject] = useState(null);
+  const [tasksList, setTasksList] = useState([]);
+  const [comments, setComments] = useState([]);
+  const [attachments, setAttachments] = useState([]);
   const [newComment, setNewComment] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [chatTaskId, setChatTaskId] = useState(null);
+  
   const chatEndRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   // Automatically scroll chat container to bottom when comments update
   useEffect(() => {
@@ -43,21 +28,82 @@ export default function ProjectDetails() {
     }
   }, [comments]);
 
-  const handleSendComment = (e) => {
-    e.preventDefault();
-    if (!newComment.trim()) return;
+  // Load project details, tasks, and attachments
+  useEffect(() => {
+    const loadProjectData = async () => {
+      setIsLoading(true);
+      try {
+        const id = projectId || 1;
+        // 1. Fetch Project Details
+        const projData = await projectsApi.get(token, id);
+        setProject(projData);
 
-    const newCommentObj = {
-      id: `c-${Date.now()}`,
-      author: "Elena Rodriguez",
-      role: "Admin Access",
-      avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuCSrkbKamuBW3btcBS0x2OY-8VPSNa-CZR2De1kGt_mWiijcgKvhjVI-JtMptZ1HbcvFGDYBoe3MaqJs_k3SGYhLP5nPMybl-A0Jws1aiDYu_3l1bpd-xfJ5dveMq8-De7da1C44mF02LYkpmJym9S5oErg5uU193dbvTsrDMYgp3jjYqca0o9XXMCcGCN3qYsm4dMQtVjmf_zWE5IDj6BQ1Nd_cP6iJ7jK7WaXr7eLaAJCP3MtdSlRV5a5Fad4EiW832ooz1SlkFQ",
-      time: "Just now",
-      content: newComment
+        // 2. Fetch Tasks
+        const tasks = await tasksApi.list(token, { projectId: id });
+        setTasksList(tasks);
+
+        // 3. Fetch Attachments
+        const files = await attachmentsApi.listProject(token, id);
+        setAttachments(files);
+
+        // Determine or create a task to house the project workspace chat
+        let chatTask = tasks.find(t => t.title === "Project Workspace Chat");
+        if (!chatTask) {
+          if (tasks.length > 0) {
+            chatTask = tasks[0];
+          } else {
+            // Create a default task for workspace comments to attach to
+            chatTask = await tasksApi.create(token, {
+              project_id: id,
+              title: "Project Workspace Chat",
+              description: "System generated task for project-wide collaboration.",
+              status: "TODO",
+              priority: "LOW"
+            }, user);
+            setTasksList(prev => [...prev, chatTask]);
+          }
+        }
+        setChatTaskId(chatTask.task_id || chatTask.id);
+        
+        // 4. Fetch Comments for the selected chat task
+        const chatComments = await commentsApi.list(token, chatTask.task_id || chatTask.id);
+        setComments(chatComments);
+
+      } catch (err) {
+        console.error("Failed to load project details:", err);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    setComments(prev => [...prev, newCommentObj]);
-    setNewComment("");
+    if (token && projectId) {
+      loadProjectData();
+    }
+  }, [token, projectId]);
+
+  // Fetch comments periodically or on tab activation
+  useEffect(() => {
+    if (token && chatTaskId && activeTab === "Overview") {
+      commentsApi.list(token, chatTaskId)
+        .then(setComments)
+        .catch(console.error);
+    }
+  }, [token, chatTaskId, activeTab]);
+
+  const handleSendComment = async (e) => {
+    e.preventDefault();
+    if (!newComment.trim() || !chatTaskId) return;
+
+    try {
+      const created = await commentsApi.create(token, chatTaskId, newComment);
+      
+      // Load comments fresh from the backend to ensure full object mapping with author name
+      const freshComments = await commentsApi.list(token, chatTaskId);
+      setComments(freshComments);
+      setNewComment("");
+    } catch (err) {
+      alert(err.message || "Failed to post comment.");
+    }
   };
 
   const handleInviteMember = () => {
@@ -67,20 +113,60 @@ export default function ProjectDetails() {
     }
   };
 
+  const handleUploadFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !project) return;
+
+    try {
+      const uploaded = await attachmentsApi.uploadProject(token, project.project_id || project.id, file, user);
+      setAttachments(prev => [uploaded, ...prev]);
+    } catch (err) {
+      alert(err.message || "Failed to upload file.");
+    }
+  };
+
+  const handleDeleteAttachment = async (attachmentId) => {
+    if (confirm("Are you sure you want to delete this attachment?")) {
+      try {
+        await attachmentsApi.remove(token, attachmentId, user);
+        setAttachments(prev => prev.filter(att => att.attachment_id !== attachmentId));
+      } catch (err) {
+        alert(err.message || "Failed to delete attachment.");
+      }
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="bg-surface-sunken dark:bg-inverse-surface text-on-surface w-full min-h-screen flex items-center justify-center">
+        <p className="font-body-lg">Loading project details...</p>
+      </div>
+    );
+  }
+
+  if (!project) {
+    return (
+      <div className="bg-surface-sunken dark:bg-inverse-surface text-on-surface w-full min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="font-headline-md text-error">Project not found</p>
+          <Link to="/projects" className="mt-md text-primary hover:underline block">Back to Projects</Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Derive status details
+  const statusDisplay = project.status === "ACTIVE" || project.status === "IN_PROGRESS" ? "On Track" : project.status === "COMPLETED" ? "Completed" : "Delayed";
+  const statusColor = project.status === "COMPLETED" ? "bg-green-500" : project.status === "DELAYED" ? "bg-orange-500" : "bg-blue-500";
+
   return (
     <div className="bg-surface-sunken dark:bg-inverse-surface text-on-surface w-full min-h-screen overflow-x-hidden flex">
-      {/* Sidebar Component */}
       <Sidebar />
 
-      {/* Main Content Area */}
       <main className="flex-1 md:ml-64 flex flex-col min-h-screen">
-        {/* Header Component */}
         <Header />
 
-        {/* Content Area */}
         <div className="p-margin-desktop flex flex-col gap-lg max-w-[1440px] mx-auto w-full bg-surface-sunken dark:bg-surface-dim">
-          
-          {/* Breadcrumbs */}
           <nav className="flex items-center gap-xs text-label-md font-label-md text-on-surface-variant dark:text-surface-variant mb-sm select-none">
             <Link className="hover:text-primary dark:hover:text-inverse-primary transition-colors" to="/dashboard">
               Dashboard
@@ -90,10 +176,9 @@ export default function ProjectDetails() {
               Projects
             </Link>
             <span className="material-symbols-outlined text-xs">chevron_right</span>
-            <span className="text-on-surface dark:text-surface-main font-semibold">Project Alpha</span>
+            <span className="text-on-surface dark:text-surface-main font-semibold">{project.project_name}</span>
           </nav>
 
-          {/* Context & Tabs */}
           <div className="mb-lg border-b border-border-subtle dark:border-outline-variant">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-md pb-md">
               <nav className="flex flex-wrap gap-x-lg gap-y-sm select-none">
@@ -117,34 +202,22 @@ export default function ProjectDetails() {
                   ACTIVE PHASE: DEV
                 </span>
                 <div className="flex -space-x-2">
-                  <img className="w-8 h-8 rounded-full border-2 border-surface-main dark:border-inverse-surface" alt="Team 1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvuaZ9Uhw3tI9byN1cNTHLIsNvgIuNpx2KcicV1Mp7ppjhyRr5mM7TGpN52UIeBEmkROCxnzop-Hxr-XYiUXT88KstjIDSHNqNRtAZU7TPkAhh6uMb3SgUMBNZHJEf9z39DzJZJ5uaLVbvBUlJz3i7RL-m2qHQoMRfmDSEw_4nwm9KMrGaeetfLRlhct99Dc42M_flVKbzLPT5v4E7_FBei5NJ7CoDnJnaKdjUHUCQlu32V1SZyzV1JO6i0utpvP0t0L3JU_Qbls4" />
-                  <img className="w-8 h-8 rounded-full border-2 border-surface-main dark:border-inverse-surface" alt="Team 2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJmQmxZKV2DGW2-t4c4D7ijt3_fNrhAfJjXptVfMqLmUKeZ31sexWrgoEm4JGS_uMTTPZVorKzUUL3IA5hP5U4l7pO9Sa3V5hIvPdI1mDj_Ez-SfLfn2siSRMA55i10W160CsQgAx9z1Yi8n36uPLGiRntsOuGqKM-bxxz9noxkDW7n1AOTP5fUdf2Oj_XSwlYXRbgh2_qyBSJZWrL-UpVqke7DKJZfhV5pq2P5SqBL9wPvj_y4_IvQyMC7Umhyz5ow4kVCSawYX0" />
-                  <img className="w-8 h-8 rounded-full border-2 border-surface-main dark:border-inverse-surface" alt="Team 3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1zcwEixYPG3drEoOFHodQq7IpJA7oqyHL1QSNWq1yrXoRiWk8td0hYvR4F7FVnT-5KfWPemZOasj4K80BnZKJqMgp97A6zUOdk95ZFZOywmZEE4NJqz0Apk40HZitb4H2MzEGEjGAhrB1q9Nhug5jumuUpd0qymS0c0EpQRDZGgAcuOLZTeV3M7Py_2MIiuLYzQZSzgINZl_upPGvdoDRCtlsqL_ltSgIBv96UMl37spuOxPSG5kDZS2gMCj_C5B6rmFaCpQBGaY" />
-                  <div className="w-8 h-8 rounded-full bg-surface-container-high dark:bg-on-surface-variant border-2 border-surface-main dark:border-inverse-surface flex items-center justify-center text-[10px] font-bold text-on-surface-variant dark:text-surface-main">+8</div>
+                  <div className="w-8 h-8 rounded-full border-2 border-surface-main bg-blue-100 flex items-center justify-center text-[10px] font-bold text-primary">PH</div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Overview Tab Content */}
           {activeTab === "Overview" && (
-            <div className="bento-grid">
-              
-              {/* Project Description */}
+            <div className="bento-grid grid grid-cols-12 gap-gutter">
               <div className="col-span-12 lg:col-span-8 bg-surface-main dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant rounded-xl p-lg shadow-sm">
                 <div className="flex justify-between items-start mb-md">
                   <h3 className="font-headline-md text-headline-md text-text-heading dark:text-surface-main font-bold">
                     Project Description
                   </h3>
-                  <button 
-                    onClick={() => alert("Description edits locked for Phase DEV.")}
-                    className="text-primary dark:text-inverse-primary hover:bg-primary-container/10 p-xs rounded-lg transition-colors cursor-pointer"
-                  >
-                    <span className="material-symbols-outlined">edit</span>
-                  </button>
                 </div>
                 <p className="font-body-lg text-body-lg text-text-body dark:text-surface-variant leading-relaxed mb-lg">
-                  The "Project Alpha" initiative focuses on architecting a next-generation distributed ledger system for real-time inventory reconciliation across global supply chains. Our primary objective is to reduce latency in transactional verification by 40% while maintaining enterprise-grade security protocols. This project involves cross-functional collaboration between Core Engineering, Security, and Logistics Ops.
+                  {project.description || "No description provided for this project. Update project details to add one."}
                 </p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-lg pt-md border-t border-border-subtle dark:border-outline-variant select-none">
@@ -154,7 +227,7 @@ export default function ProjectDetails() {
                     </p>
                     <div className="flex items-center gap-xs text-text-heading dark:text-surface-main font-title-md">
                       <span className="material-symbols-outlined text-[18px]">event</span>
-                      Oct 12, 2023 - Mar 20, 2024
+                      Active Project Lifecycle
                     </div>
                   </div>
                   <div>
@@ -162,30 +235,29 @@ export default function ProjectDetails() {
                       Status
                     </p>
                     <div className="flex items-center gap-xs">
-                      <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
-                      <span className="text-text-heading dark:text-surface-main font-title-md">On Track</span>
+                      <span className={`w-3 h-3 ${statusColor} rounded-full`}></span>
+                      <span className="text-text-heading dark:text-surface-main font-title-md">{statusDisplay}</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Health & Budget KPIs */}
               <div className="col-span-12 lg:col-span-4 flex flex-col gap-lg select-none">
                 <div className="bg-surface-main dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant rounded-xl p-lg shadow-sm flex-1">
                   <div className="flex justify-between items-center mb-sm">
                     <p className="font-label-md text-on-surface-variant dark:text-surface-variant uppercase text-[10px]">
-                      Project Health
+                      Project Progress
                     </p>
                     <span className="material-symbols-outlined text-green-500">favorite</span>
                   </div>
                   <h4 className="font-display-lg text-headline-lg text-green-600 dark:text-green-400 font-bold mb-xs">
-                    94%
+                    {project.progress || 0}%
                   </h4>
                   <p className="font-body-sm text-on-surface-variant dark:text-surface-variant">
-                    4% increase from last milestone
+                    Overall project development completion
                   </p>
                   <div className="w-full bg-surface-container dark:bg-on-surface-variant/30 rounded-full h-1.5 mt-md overflow-hidden">
-                    <div className="bg-green-500 h-full w-[94%]"></div>
+                    <div className="bg-green-500 h-full" style={{ width: `${project.progress || 0}%` }}></div>
                   </div>
                 </div>
 
@@ -201,138 +273,29 @@ export default function ProjectDetails() {
                       / $200k
                     </span>
                   </div>
-                  
                   <div className="w-full bg-surface-container dark:bg-on-surface-variant/30 rounded-full h-1.5 mt-md overflow-hidden">
                     <div className="bg-primary dark:bg-inverse-primary h-full w-[71%]"></div>
                   </div>
-                  
-                  <div className="flex items-center gap-lg mt-md">
-                    <div className="flex items-center gap-xs">
-                      <div className="w-2 h-2 rounded-full bg-primary dark:bg-inverse-primary"></div>
-                      <span className="font-label-md text-[10px] text-on-surface-variant dark:text-surface-variant font-bold">SPENT (71%)</span>
-                    </div>
-                    <div className="flex items-center gap-xs">
-                      <div className="w-2 h-2 rounded-full bg-surface-container-high dark:bg-on-surface-variant"></div>
-                      <span className="font-label-md text-[10px] text-on-surface-variant dark:text-surface-variant font-bold">REMAINING</span>
-                    </div>
-                  </div>
                 </div>
               </div>
 
-              {/* Timeline Chart */}
-              <div className="col-span-12 bg-surface-main dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant rounded-xl p-lg shadow-sm">
-                <div className="flex justify-between items-center mb-xl select-none">
-                  <div>
-                    <h3 className="font-headline-md text-headline-md text-text-heading dark:text-surface-main font-bold">
-                      Phase Progress
-                    </h3>
-                    <p className="font-body-sm text-on-surface-variant dark:text-surface-variant">
-                      Aggregated task completion by development phase
-                    </p>
-                  </div>
-                  <select className="bg-surface-sunken dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant rounded-lg text-body-sm focus:ring-primary focus:border-primary text-on-surface dark:text-surface-main cursor-pointer px-md py-sm">
-                    <option>Last 30 Days</option>
-                    <option>Quarter to Date</option>
-                  </select>
-                </div>
-                
-                {/* Mock Timeline Chart */}
-                <div className="relative h-48 w-full flex items-end justify-between gap-base px-lg select-none">
-                  <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
-                    <div className="border-t border-dashed border-border-subtle dark:border-outline-variant/30 w-full h-[1px]"></div>
-                    <div className="border-t border-dashed border-border-subtle dark:border-outline-variant/30 w-full h-[1px]"></div>
-                    <div className="border-t border-dashed border-border-subtle dark:border-outline-variant/30 w-full h-[1px]"></div>
-                    <div className="border-t border-dashed border-border-subtle dark:border-outline-variant/30 w-full h-[1px]"></div>
-                  </div>
-
-                  <div className="flex flex-col items-center gap-sm z-10 w-full">
-                    <div className="bg-primary/20 dark:bg-inverse-primary/20 w-16 rounded-t-lg relative group transition-all duration-300 hover:bg-primary/40 dark:hover:bg-inverse-primary/40 cursor-pointer" style={{ height: "40px" }}>
-                      <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-inverse-surface dark:bg-surface-main text-on-primary-container dark:text-on-surface px-sm py-xs rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-30 font-bold">
-                        Planning: 25%
-                      </div>
-                    </div>
-                    <span className="font-label-md text-[10px] text-on-surface-variant dark:text-surface-variant">PLANNING</span>
-                  </div>
-
-                  <div className="flex flex-col items-center gap-sm z-10 w-full">
-                    <div className="bg-primary/40 dark:bg-inverse-primary/40 w-16 rounded-t-lg relative group transition-all duration-300 hover:bg-primary/60 dark:hover:bg-inverse-primary/60 cursor-pointer" style={{ height: "120px" }}>
-                      <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-inverse-surface dark:bg-surface-main text-on-primary-container dark:text-on-surface px-sm py-xs rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-30 font-bold">
-                        Design: 65%
-                      </div>
-                    </div>
-                    <span className="font-label-md text-[10px] text-on-surface-variant dark:text-surface-variant">DESIGN</span>
-                  </div>
-
-                  <div className="flex flex-col items-center gap-sm z-10 w-full">
-                    <div className="bg-primary dark:bg-inverse-primary w-16 rounded-t-lg relative group transition-all duration-300 hover:brightness-110 cursor-pointer" style={{ height: "160px" }}>
-                      <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-inverse-surface dark:bg-surface-main text-on-primary-container dark:text-on-surface px-sm py-xs rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-30 font-bold">
-                        Development: 90%
-                      </div>
-                    </div>
-                    <span className="font-label-md text-[10px] text-primary dark:text-inverse-primary font-bold">DEV</span>
-                  </div>
-
-                  <div className="flex flex-col items-center gap-sm z-10 w-full">
-                    <div className="bg-primary/10 dark:bg-inverse-primary/10 w-16 rounded-t-lg relative group transition-all duration-300 hover:bg-primary/20 dark:hover:bg-inverse-primary/20 cursor-pointer" style={{ height: "20px" }}>
-                      <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-inverse-surface dark:bg-surface-main text-on-primary-container dark:text-on-surface px-sm py-xs rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-30 font-bold">
-                        QA: 5%
-                      </div>
-                    </div>
-                    <span className="font-label-md text-[10px] text-on-surface-variant dark:text-surface-variant">QA</span>
-                  </div>
-
-                  <div className="flex flex-col items-center gap-sm z-10 w-full">
-                    <div className="bg-primary/5 dark:bg-inverse-primary/5 w-16 rounded-t-lg" style={{ height: "5px" }}></div>
-                    <span className="font-label-md text-[10px] text-on-surface-variant dark:text-surface-variant">LAUNCH</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Team Members List */}
               <div className="col-span-12 lg:col-span-5 bg-surface-main dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant rounded-xl p-lg shadow-sm">
                 <div className="flex justify-between items-center mb-lg select-none">
                   <h3 className="font-title-lg text-title-lg text-text-heading dark:text-surface-main font-bold">
                     Project Team
                   </h3>
-                  <button className="text-primary dark:text-inverse-primary font-button-text text-button-text hover:underline cursor-pointer">
-                    Manage All
-                  </button>
                 </div>
                 
                 <div className="space-y-md">
-                  <div className="flex items-center justify-between p-sm hover:bg-surface-container-low dark:hover:bg-on-surface-variant/20 rounded-lg transition-colors cursor-pointer border border-transparent hover:border-border-subtle dark:hover:border-outline-variant">
+                  <div className="flex items-center justify-between p-sm hover:bg-surface-container-low dark:hover:bg-on-surface-variant/20 rounded-lg transition-colors cursor-pointer border border-transparent">
                     <div className="flex items-center gap-md">
-                      <img className="w-10 h-10 rounded-lg object-cover" alt="Alex Chen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAK6Oy0TuyX-beKCJs3HbLVZZ_r7pX6BPLQjwJM1botzflahsFX4XWKDNJ895EAU0aTLUMOHMMG3ntqcJUH-X9TzvSpCJfaQ8_RKWyfGKoh7p7HUKI4mQKskISZ9IJyxlGEhyM6WahZ3d6iztMYAqHI5Tx6td8xHxUncvMAf_ZFPWf9bhjdibE_XSorBGUWlc5GbhHwqbstrv31LHbYoM6Yzj4zKDu2z3uUtAkp_NnTNkGyGNgtoDADQ_cVBwzUgwWs4YIDkzJyV9U" />
+                      <div className="w-10 h-10 rounded-lg bg-primary text-white flex items-center justify-center font-bold">U</div>
                       <div>
-                        <p className="font-title-md text-sm text-text-heading dark:text-surface-main font-bold">Alex Chen</p>
-                        <p className="font-body-sm text-on-surface-variant dark:text-surface-variant text-[11px]">Engineering Lead</p>
+                        <p className="font-title-md text-sm text-text-heading dark:text-surface-main font-bold">Project Members</p>
+                        <p className="font-body-sm text-on-surface-variant dark:text-surface-variant text-[11px]">Organization Boundary Access</p>
                       </div>
                     </div>
-                    <span className="material-symbols-outlined text-on-surface-variant dark:text-surface-variant cursor-pointer">more_vert</span>
                   </div>
-
-                  <div className="flex items-center justify-between p-sm hover:bg-surface-container-low dark:hover:bg-on-surface-variant/20 rounded-lg transition-colors cursor-pointer border border-transparent hover:border-border-subtle dark:hover:border-outline-variant">
-                    <div className="flex items-center gap-md">
-                      <img className="w-10 h-10 rounded-lg object-cover" alt="Sarah Jenkins" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrezlauh-69up1qBXXw7nge8K0E_cBtbqHx4sVrVz9VOQhW92AvFIvnamri6iUrGtp4yuLPZ6S5oOmmo27zFr0YinCynGIOZ_AP2PvWxdydyrshGOv_SbqEEdMJs6ySbEV8Fu9uKhrO2WyutW_JJN-ep2jZmQ51VyZWy16sAZVwWtzKGPxNrSPE-yvUMyGKQoXOgRNmmiK-zD0n5p05lEDgzkcu5E9mLJ3a1s5P1jECAuCdvbudVoAk66ODoi1BfQyEy8cCr6k1qQ" />
-                      <div>
-                        <p className="font-title-md text-sm text-text-heading dark:text-surface-main font-bold">Sarah Jenkins</p>
-                        <p className="font-body-sm text-on-surface-variant dark:text-surface-variant text-[11px]">UX Director</p>
-                      </div>
-                    </div>
-                    <span className="material-symbols-outlined text-on-surface-variant dark:text-surface-variant cursor-pointer">more_vert</span>
-                  </div>
-
-                  <div className="flex items-center justify-between p-sm hover:bg-surface-container-low dark:hover:bg-on-surface-variant/20 rounded-lg transition-colors cursor-pointer border border-transparent hover:border-border-subtle dark:hover:border-outline-variant">
-                    <div className="flex items-center gap-md">
-                      <img className="w-10 h-10 rounded-lg object-cover" alt="Marcus Thorne" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZ_Fg5rm6QMTxPHs6EvzMlCDBQtBUX0A8CnAhPafWEgX2z9Q-cq0xkCfoY45W-5T3AfROUs3Rko1RTtVPPsrhzQuJBV3NgcaCWS3uU5Krh16Nfnj4TyxSgOZUL8Wyn4StJc7_H3RAupeZ_l6UKme_vAZEe0dUd92uZpziWcZApIRSsLZbyr05MIVH-HdI8eehG-Hzq76H-oQR1nU5yavanvYiHILaz00xTVF2GtpEYpB5RaGr4hSeLbezBEZd2YeBN0ScOtxH_Cm4" />
-                      <div>
-                        <p className="font-title-md text-sm text-text-heading dark:text-surface-main font-bold">Marcus Thorne</p>
-                        <p className="font-body-sm text-on-surface-variant dark:text-surface-variant text-[11px]">Data Architect</p>
-                      </div>
-                    </div>
-                    <span className="material-symbols-outlined text-on-surface-variant dark:text-surface-variant cursor-pointer">more_vert</span>
-                  </div>
-
                   <button 
                     onClick={handleInviteMember}
                     className="w-full py-md border-2 border-dashed border-border-subtle dark:border-outline-variant rounded-xl text-on-surface-variant dark:text-surface-variant font-button-text text-button-text flex items-center justify-center gap-sm hover:border-primary hover:text-primary dark:hover:border-inverse-primary transition-all cursor-pointer bg-white dark:bg-inverse-surface select-none"
@@ -343,43 +306,42 @@ export default function ProjectDetails() {
                 </div>
               </div>
 
-              {/* Collaboration Chat Panel */}
               <div className="col-span-12 lg:col-span-7 bg-surface-main dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant rounded-xl p-lg shadow-sm flex flex-col h-[400px]">
                 <div className="flex items-center gap-sm mb-lg border-b border-border-subtle dark:border-outline-variant pb-md select-none">
                   <span className="material-symbols-outlined text-primary dark:text-inverse-primary">chat_bubble</span>
                   <h3 className="font-title-lg text-title-lg text-text-heading dark:text-surface-main font-bold">
-                    Collaboration
+                    Collaboration Chat
                   </h3>
                 </div>
 
-                {/* Comment Feed Container */}
                 <div className="flex-1 overflow-y-auto pr-sm custom-scrollbar space-y-lg mb-lg">
-                  {comments.map((comment) => (
-                    <div key={comment.id} className="flex gap-md">
-                      <img
-                        className="w-8 h-8 rounded-full object-cover border border-border-subtle dark:border-outline-variant"
-                        alt={comment.author}
-                        src={comment.avatar}
-                      />
-                      <div className="bg-surface-sunken dark:bg-on-surface-variant/20 p-md rounded-xl rounded-tl-none border border-border-subtle dark:border-outline-variant flex-1">
-                        <div className="flex justify-between items-center mb-xs select-none">
-                          <span className="font-title-md text-sm text-text-heading dark:text-surface-main font-bold">
-                            {comment.author}
-                          </span>
-                          <span className="text-[10px] text-on-surface-variant dark:text-surface-variant">
-                            {comment.time}
-                          </span>
+                  {comments.map((comment) => {
+                    const authorName = comment.first_name ? `${comment.first_name} ${comment.last_name || ""}` : "Team Member";
+                    const initials = authorName.split(" ").map(n => n[0]).join("").toUpperCase();
+                    return (
+                      <div key={comment.comment_id || comment.id} className="flex gap-md">
+                        <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-bold shrink-0">
+                          {initials}
                         </div>
-                        <p className="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant">
-                          {comment.content}
-                        </p>
+                        <div className="bg-surface-sunken dark:bg-on-surface-variant/20 p-md rounded-xl rounded-tl-none border border-border-subtle dark:border-outline-variant flex-1">
+                          <div className="flex justify-between items-center mb-xs select-none">
+                            <span className="font-title-md text-sm text-text-heading dark:text-surface-main font-bold">
+                              {authorName}
+                            </span>
+                            <span className="text-[10px] text-on-surface-variant dark:text-surface-variant">
+                              {new Date(comment.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                          <p className="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant">
+                            {comment.comment}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   <div ref={chatEndRef} />
                 </div>
 
-                {/* Send Chat Field */}
                 <form onSubmit={handleSendComment} className="flex items-end gap-md">
                   <div className="flex-1 bg-surface-sunken dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant rounded-xl p-sm focus-within:border-primary dark:focus-within:border-inverse-primary transition-colors flex flex-col gap-xs">
                     <textarea
@@ -398,15 +360,19 @@ export default function ProjectDetails() {
                     
                     <div className="flex items-center justify-between mt-xs border-t border-border-subtle dark:border-outline-variant/30 pt-xs px-xs select-none">
                       <div className="flex gap-sm">
-                        <button type="button" className="material-symbols-outlined text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors text-[20px] cursor-pointer">
+                        <button 
+                          type="button" 
+                          onClick={() => fileInputRef.current?.click()}
+                          className="material-symbols-outlined text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors text-[20px] cursor-pointer"
+                        >
                           attach_file
                         </button>
-                        <button type="button" className="material-symbols-outlined text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors text-[20px] cursor-pointer">
-                          alternate_email
-                        </button>
-                        <button type="button" className="material-symbols-outlined text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors text-[20px] cursor-pointer">
-                          mood
-                        </button>
+                        <input 
+                          type="file" 
+                          ref={fileInputRef} 
+                          className="hidden" 
+                          onChange={handleUploadFile}
+                        />
                       </div>
                       
                       <button
@@ -419,16 +385,14 @@ export default function ProjectDetails() {
                   </div>
                 </form>
               </div>
-
             </div>
           )}
 
-          {/* Tasks Tab Content */}
           {activeTab === "Tasks" && (
             <div className="bg-surface-main dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant rounded-xl p-lg shadow-sm space-y-md">
               <div className="flex justify-between items-center select-none">
                 <h3 className="font-title-lg text-title-lg text-text-heading dark:text-surface-main font-bold">
-                  Open Tasks for Project Alpha
+                  Open Tasks for {project.project_name}
                 </h3>
                 <Link to="/tasks" className="text-primary dark:text-inverse-primary font-button-text text-button-text hover:underline font-bold">
                   View Full Kanban Board →
@@ -436,154 +400,114 @@ export default function ProjectDetails() {
               </div>
               
               <div className="divide-y divide-border-subtle dark:divide-outline-variant">
-                {tasksList.map((t) => (
-                  <div key={t.id} className="flex items-center justify-between py-md first:pt-0 last:pb-0">
+                {tasksList.filter(t => t.title !== "Project Workspace Chat").map((t) => (
+                  <div key={t.task_id || t.id} className="flex items-center justify-between py-md first:pt-0 last:pb-0">
                     <div>
                       <p className="font-title-md text-title-md text-text-heading dark:text-surface-main font-semibold">
                         {t.title}
                       </p>
                       <p className="text-body-sm text-on-surface-variant dark:text-surface-variant">
-                        Assigned to {t.assignee} • Priority: <span className="font-semibold">{t.priority}</span>
+                        Priority: <span className="font-semibold">{t.priority}</span>
                       </p>
                     </div>
-                    <span className={`px-sm py-1 rounded-full font-label-md text-label-md font-semibold select-none ${
-                      t.status === "Completed" 
-                        ? "bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-400 border border-green-200 dark:border-green-800/30"
-                        : t.status === "In Progress"
-                        ? "bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800/30"
-                        : t.status === "Review"
-                        ? "bg-orange-50 text-orange-700 dark:bg-orange-950/30 dark:text-orange-400 border border-orange-200 dark:border-orange-800/30"
-                        : "bg-surface-sunken text-on-surface-variant dark:bg-inverse-surface dark:text-surface-variant border border-border-subtle dark:border-outline-variant"
-                    }`}>
+                    <span className="px-sm py-1 rounded-full font-label-md text-label-md font-semibold select-none bg-blue-50 text-blue-700 border border-blue-200">
                       {t.status}
                     </span>
                   </div>
                 ))}
+                {tasksList.filter(t => t.title !== "Project Workspace Chat").length === 0 && (
+                  <p className="text-on-surface-variant text-center py-4">No tasks found for this project.</p>
+                )}
               </div>
             </div>
           )}
 
-          {/* Team Tab Content */}
           {activeTab === "Team" && (
             <div className="bg-surface-main dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant rounded-xl p-lg shadow-sm space-y-md">
               <div className="flex justify-between items-center select-none">
                 <h3 className="font-title-lg text-title-lg text-text-heading dark:text-surface-main font-bold">
                   Active Project Roster
                 </h3>
-                <button
-                  onClick={handleInviteMember}
-                  className="flex items-center gap-xs px-md py-sm bg-primary text-white rounded-lg font-button-text text-button-text hover:brightness-110 active:scale-95 transition-all cursor-pointer shadow"
-                >
-                  <span className="material-symbols-outlined text-[18px]">person_add</span> Invite Member
-                </button>
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-md select-none">
-                {project.team.map((member, index) => (
-                  <div key={index} className="flex items-center gap-md p-md bg-surface-sunken dark:bg-on-surface-variant/20 border border-border-subtle dark:border-outline-variant rounded-xl">
-                    <img className="w-12 h-12 rounded-full object-cover border-2 border-surface-main dark:border-inverse-surface" alt={member.name} src={member.avatar} />
-                    <div>
-                      <p className="font-title-md text-title-md text-text-heading dark:text-surface-main font-bold">
-                        {member.name}
-                      </p>
-                      <p className="text-body-md text-on-surface-variant dark:text-surface-variant">
-                        {member.role}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <p className="text-on-surface-variant text-center py-4">To manage team members and allocate roles, navigate to the Team Management section.</p>
             </div>
           )}
 
-          {/* Timeline Tab Content */}
           {activeTab === "Timeline" && (
             <div className="bg-surface-main dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant rounded-xl p-lg shadow-sm space-y-lg select-none">
               <h3 className="font-title-lg text-title-lg text-text-heading dark:text-surface-main font-bold">
                 Project Milestone Schedule
               </h3>
-              
               <div className="relative border-l-2 border-border-subtle dark:border-outline-variant/30 ml-4 pl-lg space-y-xl py-xs">
                 <div className="relative">
-                  <div className="absolute -left-[35px] top-1.5 w-4 h-4 rounded-full border-2 border-surface-main dark:border-inverse-surface bg-green-500"></div>
-                  <h4 className="font-title-md text-title-md text-text-heading dark:text-surface-main font-bold">Planning Phase Completion</h4>
-                  <span className="text-body-sm text-on-surface-variant dark:text-surface-variant block mb-sm">Oct 20, 2023</span>
-                  <p className="font-body-md text-body-md text-text-body dark:text-surface-variant">Gather system latency constraints and map physical nodes layout.</p>
-                </div>
-
-                <div className="relative">
-                  <div className="absolute -left-[35px] top-1.5 w-4 h-4 rounded-full border-2 border-surface-main dark:border-inverse-surface bg-green-500"></div>
-                  <h4 className="font-title-md text-title-md text-text-heading dark:text-surface-main font-bold">Design Sign-off</h4>
-                  <span className="text-body-sm text-on-surface-variant dark:text-surface-variant block mb-sm">Nov 15, 2023</span>
-                  <p className="font-body-md text-body-md text-text-body dark:text-surface-variant">Finalize distributed ledger verification protocol wireframes.</p>
-                </div>
-
-                <div className="relative">
-                  <div className="absolute -left-[35px] top-1.5 w-4 h-4 rounded-full border-2 border-surface-main dark:border-inverse-surface bg-blue-500"></div>
-                  <h4 className="font-title-md text-title-md text-text-heading dark:text-surface-main font-bold">Core Ledger Implementation</h4>
-                  <span className="text-body-sm text-on-surface-variant dark:text-surface-variant block mb-sm">Jan 10, 2024 (In Progress)</span>
-                  <p className="font-body-md text-body-md text-text-body dark:text-surface-variant">Implement telemetry middle-tier integrations and JWT access routines.</p>
-                </div>
-
-                <div className="relative">
-                  <div className="absolute -left-[35px] top-1.5 w-4 h-4 rounded-full border-2 border-surface-main dark:border-inverse-surface bg-outline-variant"></div>
-                  <h4 className="font-title-md text-title-md text-text-heading dark:text-surface-main font-bold">Security Audit & Launch</h4>
-                  <span className="text-body-sm text-on-surface-variant dark:text-surface-variant block mb-sm">Mar 20, 2024</span>
-                  <p className="font-body-md text-body-md text-text-body dark:text-surface-variant">Run vulnerability assessment sweeps and deploy to region servers.</p>
+                  <div className="absolute -left-[35px] top-1.5 w-4 h-4 rounded-full border-2 border-surface-main bg-blue-500"></div>
+                  <h4 className="font-title-md text-title-md text-text-heading dark:text-surface-main font-bold">Project Launch</h4>
+                  <span className="text-body-sm text-on-surface-variant dark:text-surface-variant block mb-sm">Created At {new Date(project.created_at).toLocaleDateString()}</span>
+                  <p className="font-body-md text-body-md text-text-body dark:text-surface-variant">Project initialization and repository boundaries initialized.</p>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Attachments Tab Content */}
           {activeTab === "Attachments" && (
             <div className="bg-surface-main dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant rounded-xl p-lg shadow-sm space-y-md">
-              <h3 className="font-title-lg text-title-lg text-text-heading dark:text-surface-main font-bold select-none">
-                Project Documentation & Assets
-              </h3>
+              <div className="flex justify-between items-center select-none">
+                <h3 className="font-title-lg text-title-lg text-text-heading dark:text-surface-main font-bold">
+                  Project Documentation & Assets
+                </h3>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-xs px-md py-sm bg-primary text-white rounded-lg font-button-text hover:brightness-110 active:scale-95 transition-all cursor-pointer shadow"
+                >
+                  <span className="material-symbols-outlined text-[18px]">upload</span> Upload File
+                </button>
+              </div>
               
               <div className="divide-y divide-border-subtle dark:divide-outline-variant">
-                {project.resources.map((res, index) => (
-                  <div key={index} className="flex items-center justify-between py-md first:pt-0 last:pb-0">
-                    <div className="flex items-center gap-md">
-                      <div className="w-10 h-10 rounded-lg bg-surface-sunken dark:bg-on-surface-variant/20 flex items-center justify-center text-primary dark:text-inverse-primary select-none">
-                        <span className="material-symbols-outlined">{res.icon}</span>
+                {attachments.map((res) => {
+                  const sizeKB = (res.file_size / 1024).toFixed(1);
+                  return (
+                    <div key={res.attachment_id || res.id} className="flex items-center justify-between py-md first:pt-0 last:pb-0">
+                      <div className="flex items-center gap-md">
+                        <div className="w-10 h-10 rounded-lg bg-surface-sunken dark:bg-on-surface-variant/20 flex items-center justify-center text-primary select-none">
+                          <span className="material-symbols-outlined">description</span>
+                        </div>
+                        <div>
+                          <p className="font-title-md text-title-md text-text-heading dark:text-surface-main font-semibold hover:text-primary transition-colors cursor-pointer">
+                            {res.original_name}
+                          </p>
+                          <p className="text-body-sm text-on-surface-variant">
+                            {res.mime_type} • {sizeKB} KB
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-title-md text-title-md text-text-heading dark:text-surface-main font-semibold hover:text-primary dark:hover:text-inverse-primary transition-colors cursor-pointer">
-                          {res.name}
-                        </p>
-                        <p className="text-body-sm text-on-surface-variant dark:text-surface-variant">
-                          {res.type} • {res.size}
-                        </p>
+                      
+                      <div className="flex gap-sm">
+                        <button
+                          onClick={() => alert("Downloading is supported via direct file paths.")}
+                          className="p-2 border border-border-subtle hover:bg-surface-container-low rounded-lg text-on-surface-variant transition-all cursor-pointer bg-white"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">download</span>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteAttachment(res.attachment_id)}
+                          className="p-2 border border-error hover:bg-red-50 rounded-lg text-error transition-all cursor-pointer bg-white"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">delete</span>
+                        </button>
                       </div>
                     </div>
-                    
-                    <button
-                      onClick={() => alert(`Downloading ${res.name}...`)}
-                      className="p-2 border border-border-subtle dark:border-outline-variant hover:bg-surface-container-low dark:hover:bg-on-surface-variant/40 rounded-lg text-on-surface-variant dark:text-surface-variant transition-all cursor-pointer bg-white dark:bg-inverse-surface"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">download</span>
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
+                {attachments.length === 0 && (
+                  <p className="text-on-surface-variant text-center py-4">No documentation uploaded yet.</p>
+                )}
               </div>
             </div>
           )}
 
         </div>
       </main>
-
-      {/* Floating Insights Action Button */}
-      <button 
-        onClick={() => alert("Loading dynamic insights panel for Project Alpha...")}
-        className="fixed bottom-lg right-lg w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-50 group cursor-pointer"
-      >
-        <span className="material-symbols-outlined text-[24px]">bolt</span>
-        <span className="absolute right-16 bg-inverse-surface text-on-primary-container px-md py-sm rounded-lg font-button-text whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none text-xs font-bold shadow-md">
-          Project Insights
-        </span>
-      </button>
     </div>
   );
 }

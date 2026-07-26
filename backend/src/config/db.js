@@ -1,4 +1,5 @@
 const { Pool } = require("pg");
+const metrics = require("../utils/metrics");
 
 const pool = new Pool({
     host: process.env.DB_HOST,
@@ -9,8 +10,10 @@ const pool = new Pool({
 });
 
 module.exports = {
-    query: (text, params) => pool.query(text, params),
+    query: (text, params) => {
+        metrics.incrementDbQuery();
+        return pool.query(text, params);
+    },
     pool,
 };
 console.log("DB module loaded");
-console.log(typeof module.exports.query);
