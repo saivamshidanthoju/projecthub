@@ -1,4 +1,4 @@
-﻿import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { can, getRoleLabel } from "../lib/rbac";
 
@@ -50,7 +50,7 @@ export default function Sidebar() {
                 to={item.path}
                 className={`flex items-center gap-sm py-sm active:scale-[0.98] transition-all duration-200 ${
                   isActive
-                    ? "bg-secondary-container text-on-secondary-container border-l-[3px] border-primary pl-3 pr-md rounded-r-lg rounded-l-none"
+                    ? "bg-primary/10 text-primary font-bold px-md rounded-lg"
                     : "text-on-surface-variant hover:bg-surface-container-high px-md rounded-lg"
                 }`}
               >
@@ -62,7 +62,7 @@ export default function Sidebar() {
         </nav>
 
         <div className="mt-auto pt-lg border-t border-border-subtle flex flex-col gap-xs select-none">
-          <div className="mt-md p-sm bg-surface-container rounded-xl flex items-center gap-sm">
+          <div className="mt-md p-sm bg-surface-container rounded-lg flex items-center gap-sm">
             <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm shrink-0">
               {initials}
             </div>
@@ -75,7 +75,7 @@ export default function Sidebar() {
           {can(user, "manageProjects") && (
             <Link
               to="/projects"
-              className="bg-primary text-white py-sm px-md rounded-lg flex items-center justify-center gap-sm font-button-text text-button-text hover:bg-surface-tint active:scale-95 transition-all cursor-pointer mt-sm"
+              className="bg-primary text-white py-sm px-md rounded-lg flex items-center justify-center gap-sm font-button-text text-button-text hover:bg-surface-tint active:scale-95 transition-all cursor-pointer mt-sm font-bold"
             >
               <span className="material-symbols-outlined">add</span>
               New Project

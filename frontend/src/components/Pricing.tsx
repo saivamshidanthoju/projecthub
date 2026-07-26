@@ -72,7 +72,7 @@ function PricingCard({
         borderColor: highlighted ? "var(--color-primary)" : "var(--color-primary-fixed-dim)",
         boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
       }}
-      className={`bg-surface-main rounded-2xl p-xl flex flex-col h-full transition-all shadow-sm cursor-pointer ${
+      className={`bg-surface-main rounded-xl p-xl flex flex-col h-full transition-all shadow-sm cursor-pointer ${
         highlighted
           ? "border-2 border-primary relative z-10 my-4 md:my-0"
           : "border border-border-subtle"
@@ -105,7 +105,7 @@ function PricingCard({
           )}
         </h3>
       </div>
-      <ul className="space-y-4 mb-12 flex-grow">
+      <ul className="space-y-4 mb-12 flex-grow text-left">
         {features.map((feature, i) => (
           <li
             key={i}
@@ -127,7 +127,7 @@ function PricingCard({
       <MotionLink
         whileTap={{ scale: 0.97 }}
         to="/register"
-        className={`w-full py-3 rounded-xl font-button-text text-button-text transition-all cursor-pointer text-center block ${getButtonClass()}`}
+        className={`w-full py-3 rounded-lg font-button-text text-button-text transition-all cursor-pointer text-center block ${getButtonClass()}`}
       >
         {buttonText}
       </MotionLink>

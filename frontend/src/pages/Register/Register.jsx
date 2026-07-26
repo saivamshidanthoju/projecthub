@@ -1,4 +1,4 @@
-﻿import { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { ROLES } from "../../lib/rbac";
@@ -64,36 +64,42 @@ export default function Register() {
   };
 
   return (
-    <div className="bg-surface-sunken text-on-surface min-h-screen flex items-center justify-center p-md md:p-lg w-full">
-      <main className="w-full max-w-[1100px] grid grid-cols-1 md:grid-cols-2 shadow-sm rounded-xl overflow-hidden bg-surface-main border border-border-subtle">
-        <div className="hidden md:flex flex-col justify-between p-xl bg-primary text-on-primary relative overflow-hidden">
-          <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary-container opacity-20 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-primary-fixed-dim/10 to-transparent"></div>
+    <div className="min-h-screen w-full bg-surface-main text-on-surface flex flex-col md:grid md:grid-cols-2">
+      <div 
+        className="hidden md:flex flex-col justify-between p-xl bg-cover bg-center text-white relative overflow-hidden min-h-screen"
+        style={{ backgroundImage: "url('/register_left_bg.png')" }}
+      >
+        <div className="absolute inset-0 bg-black/45 z-0"></div>
 
-          <div className="z-10">
-            <div className="flex items-center gap-sm mb-xl">
-              <div className="w-10 h-10 bg-on-primary rounded-lg flex items-center justify-center">
-                <span className="material-symbols-outlined text-primary text-title-lg">hub</span>
-              </div>
-              <span className="font-title-lg text-title-lg font-bold tracking-tight">ProjectHub</span>
+        <div className="z-10">
+          <div className="flex items-center gap-sm mb-xl">
+            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+              <span className="material-symbols-outlined text-primary text-title-lg">hub</span>
             </div>
-            <h1 className="font-display-lg text-display-lg leading-tight mb-md">
-              Create a controlled workspace.
-            </h1>
-            <p className="font-body-lg text-body-lg text-on-primary/80 max-w-[384px]">
-              Your first account becomes the workspace admin, with manager and member access enforced across the app.
-            </p>
+            <span className="font-title-lg text-title-lg font-bold tracking-tight text-white">ProjectHub</span>
           </div>
-
-          <div className="z-10 mt-auto bg-white/10 border border-white/20 rounded-lg p-md">
-            <p className="font-body-sm text-body-sm italic opacity-90 text-on-primary">
-              ProjectHub keeps project access, upload permissions, and destructive actions tied to role.
-            </p>
-          </div>
+          <h1 className="font-display-lg text-display-lg leading-tight mb-md text-white font-bold">
+            Create a controlled workspace.
+          </h1>
+          <p className="font-body-lg text-body-lg text-white/90 max-w-[384px]">
+            Your first account becomes the workspace admin, with manager and member access enforced across the app.
+          </p>
         </div>
 
-        <div className="p-lg md:p-xl flex flex-col justify-center bg-surface-main">
+        <div className="z-10 mt-auto bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-md">
+          <p className="font-body-sm text-body-sm italic text-white/90">
+            ProjectHub keeps project access, upload permissions, and destructive actions tied to role.
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-center p-lg md:p-xl bg-surface-main">
+        <div className="w-full max-w-[420px] text-left">
           <div className="mb-lg">
+            <Link to="/" className="inline-flex items-center gap-1 text-xs font-semibold text-on-surface-variant hover:text-primary transition-colors mb-4 select-none">
+              <span className="material-symbols-outlined text-[16px] font-bold">arrow_back</span>
+              Back to landing
+            </Link>
             <h2 className="font-headline-lg text-headline-lg text-text-heading mb-xs">
               Create workspace
             </h2>
@@ -191,7 +197,7 @@ export default function Register() {
                   className="w-full h-11 px-md rounded border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md text-body-md bg-surface"
                   id="password"
                   name="password"
-                  placeholder="Minimum 6 characters"
+                  placeholder="Minimum 6 chars"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -199,6 +205,7 @@ export default function Register() {
                   required
                 />
               </div>
+
               <div className="flex flex-col gap-xs">
                 <label className="font-label-md text-label-md text-on-surface-variant" htmlFor="confirm_password">
                   Confirm Password
@@ -207,7 +214,7 @@ export default function Register() {
                   className="w-full h-11 px-md rounded border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md text-body-md bg-surface"
                   id="confirm_password"
                   name="confirm_password"
-                  placeholder="Repeat password"
+                  placeholder="Confirm password"
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
@@ -238,20 +245,18 @@ export default function Register() {
             </div>
 
             <button
-              className={`w-full h-12 text-on-primary font-button-text text-button-text rounded-lg active:scale-[0.98] transition-all flex items-center justify-center gap-sm cursor-pointer disabled:opacity-75 ${
-                isSuccess ? "bg-green-600" : "bg-primary hover:bg-surface-tint"
-              }`}
+              className="w-full h-12 bg-primary text-white rounded-lg shadow hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-xs cursor-pointer font-bold"
               type="submit"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
                 <>
-                  <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+                  <span className="material-symbols-outlined animate-spin text-[18px]">sync</span>
                   <span>Creating...</span>
                 </>
               ) : isSuccess ? (
                 <>
-                  <span className="material-symbols-outlined">check_circle</span>
+                  <span className="material-symbols-outlined text-[18px]">check</span>
                   <span>Workspace Created</span>
                 </>
               ) : (
@@ -272,7 +277,7 @@ export default function Register() {
             </p>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

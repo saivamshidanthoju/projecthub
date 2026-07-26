@@ -69,24 +69,6 @@ export default function Navbar() {
         >
           Get Started
         </MotionLink>
-
-        <div className="flex items-center gap-sm ml-xl border-l border-border-subtle pl-xl">
-          <motion.span
-            whileHover={{ scale: 1.1, rotate: 15 }}
-            whileTap={{ scale: 0.9 }}
-            className="material-symbols-outlined text-on-surface-variant cursor-pointer p-2 rounded-full hover:bg-surface-container-low"
-          >
-            notifications
-          </motion.span>
-
-          <motion.span
-            whileHover={{ scale: 1.1, rotate: -15 }}
-            whileTap={{ scale: 0.9 }}
-            className="material-symbols-outlined text-on-surface-variant cursor-pointer p-2 rounded-full hover:bg-surface-container-low"
-          >
-            account_circle
-          </motion.span>
-        </div>
       </div>
     </motion.header>
   );
