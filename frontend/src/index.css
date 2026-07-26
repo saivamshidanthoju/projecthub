@@ -1,4 +1,5 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
+@custom-variant dark (&:where(.projecthub-never-dark, .projecthub-never-dark *));
 
 @theme {
   --color-on-tertiary-fixed-variant: #2c24ce;
@@ -141,9 +142,19 @@
   font-family: "Inter", sans-serif;
 }
 
+:root {
+  color-scheme: light;
+}
+
+html, body, #root {
+  min-height: 100%;
+  background-color: #f8f9ff;
+}
+
 body {
   font-family: 'Inter', sans-serif;
   background-color: #f8f9ff;
+  color: #0b1c30;
 }
 
 .material-symbols-outlined {
@@ -215,5 +226,7 @@ body {
   background: #E2E8F0;
   border-radius: 10px;
 }
+
+
 
 

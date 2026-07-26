@@ -1,99 +1,93 @@
-import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+﻿import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { getRoleLabel } from "../lib/rbac";
 
 export default function Header() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const pathname = location.pathname;
-
   const [profileOpen, setProfileOpen] = useState(false);
 
-  // Force light mode (remove dark class) on mount to clear any residual state
   useEffect(() => {
     document.documentElement.classList.remove("dark");
+    document.documentElement.dataset.theme = "light";
+    document.documentElement.style.colorScheme = "light";
   }, []);
 
-  const handleToggleSimulated = () => {
-    alert("Workspace is locked to Light Mode only.");
+  const fullName = useMemo(() => {
+    const name = `${user?.first_name || ""} ${user?.last_name || ""}`.trim();
+    return name || "ProjectHub User";
+  }, [user]);
+
+  const initials = fullName
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+  const handleLogout = () => {
+    setProfileOpen(false);
+    logout();
+    navigate("/login", { replace: true });
   };
 
   const isTeamPage = pathname === "/team";
   const isCalendarPage = pathname === "/calendar";
 
   return (
-    <header className="flex items-center justify-between px-margin-desktop w-full h-16 sticky top-0 z-40 bg-surface-container-lowest dark:bg-inverse-surface shadow-sm border-b border-border-subtle dark:border-outline-variant select-none shrink-0">
-      {/* Left Navigation / Brand block */}
-      <div className="flex items-center gap-xl">
+    <header className="flex items-center justify-between px-margin-desktop w-full h-16 sticky top-0 z-40 bg-white shadow-sm border-b border-border-subtle select-none shrink-0">
+      <div className="flex items-center gap-xl min-w-0">
         {isTeamPage ? (
           <>
-            <Link to="/" className="font-title-lg text-title-lg text-primary dark:text-inverse-primary font-bold tracking-tight">
+            <Link to="/dashboard" className="font-title-lg text-title-lg text-primary font-bold tracking-tight">
               ProjectHub
             </Link>
             <nav className="hidden md:flex items-center gap-base">
-              <Link
-                to="/dashboard"
-                className="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors px-3 py-2 rounded-lg"
-              >
+              <Link className="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors px-3 py-2 rounded-lg" to="/dashboard">
                 Dashboard
               </Link>
               <div className="relative py-2 px-3">
-                <Link
-                  to="/team"
-                  className="font-body-md text-body-md text-primary dark:text-inverse-primary font-semibold"
-                >
+                <Link className="font-body-md text-body-md text-primary font-semibold" to="/team">
                   Team
                 </Link>
-                <div className="absolute bottom-0 left-3 right-3 h-[3px] bg-primary dark:bg-inverse-primary rounded-full"></div>
+                <div className="absolute bottom-0 left-3 right-3 h-[3px] bg-primary rounded-full"></div>
               </div>
-              <Link
-                to="/projects"
-                className="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors px-3 py-2 rounded-lg"
-              >
+              <Link className="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors px-3 py-2 rounded-lg" to="/projects">
                 Projects
               </Link>
             </nav>
           </>
         ) : isCalendarPage ? (
           <>
-            <Link to="/" className="font-title-lg text-title-lg text-primary dark:text-inverse-primary font-bold tracking-tight">
+            <Link to="/dashboard" className="font-title-lg text-title-lg text-primary font-bold tracking-tight">
               ProjectHub
             </Link>
             <nav className="hidden md:flex items-center gap-base">
-              <Link
-                to="/dashboard"
-                className="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors px-3 py-2 rounded-lg"
-              >
+              <Link className="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors px-3 py-2 rounded-lg" to="/dashboard">
                 Overview
               </Link>
               <div className="relative py-2 px-3">
-                <Link
-                  to="/calendar"
-                  className="font-body-md text-body-md text-primary dark:text-inverse-primary font-semibold"
-                >
+                <Link className="font-body-md text-body-md text-primary font-semibold" to="/calendar">
                   Calendar
                 </Link>
-                <div className="absolute bottom-0 left-3 right-3 h-[3px] bg-primary dark:bg-inverse-primary rounded-full"></div>
+                <div className="absolute bottom-0 left-3 right-3 h-[3px] bg-primary rounded-full"></div>
               </div>
-              <Link
-                to="/projects"
-                className="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors px-3 py-2 rounded-lg"
-              >
+              <Link className="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors px-3 py-2 rounded-lg" to="/projects">
                 Timeline
               </Link>
-              <Link
-                to="/tasks"
-                className="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors px-3 py-2 rounded-lg"
-              >
+              <Link className="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors px-3 py-2 rounded-lg" to="/tasks">
                 Milestones
               </Link>
             </nav>
           </>
         ) : (
-          <div className="flex items-center bg-surface-sunken dark:bg-inverse-surface px-sm py-xs rounded-lg border border-border-subtle dark:border-outline-variant w-80 md:w-96">
-            <span className="material-symbols-outlined text-on-surface-variant dark:text-surface-variant text-md">
-              search
-            </span>
+          <div className="flex items-center bg-surface-sunken px-sm py-xs rounded-lg border border-border-subtle w-64 md:w-96">
+            <span className="material-symbols-outlined text-on-surface-variant text-md">search</span>
             <input
-              className="bg-transparent border-none focus:ring-0 text-body-md w-full ml-xs outline-none text-on-surface dark:text-surface-main pl-2"
+              className="bg-transparent border-none focus:ring-0 text-body-md w-full ml-xs outline-none text-on-surface pl-2"
               placeholder="Search projects, tasks, or team members..."
               type="text"
             />
@@ -101,15 +95,12 @@ export default function Header() {
         )}
       </div>
 
-      {/* Right Tools / User Profile block */}
       <div className="flex items-center gap-md">
-        {isTeamPage && (
-          <div className="relative flex items-center bg-surface-sunken dark:bg-inverse-surface px-sm py-xs rounded-lg border border-border-subtle dark:border-outline-variant w-40 md:w-64">
-            <span className="material-symbols-outlined text-on-surface-variant dark:text-surface-variant text-md">
-              search
-            </span>
+        {(isTeamPage || isCalendarPage) && (
+          <div className="hidden lg:flex items-center bg-surface-sunken px-sm py-xs rounded-lg border border-border-subtle w-56">
+            <span className="material-symbols-outlined text-on-surface-variant text-md">search</span>
             <input
-              className="bg-transparent border-none focus:ring-0 text-body-sm w-full ml-xs outline-none text-on-surface dark:text-surface-main pl-2"
+              className="bg-transparent border-none focus:ring-0 text-body-sm w-full ml-xs outline-none text-on-surface pl-2"
               placeholder="Global search..."
               type="text"
             />
@@ -117,86 +108,69 @@ export default function Header() {
         )}
 
         {isCalendarPage && (
-          <>
-            <div className="relative flex items-center bg-surface-sunken dark:bg-inverse-surface px-sm py-xs rounded-lg border border-border-subtle dark:border-outline-variant w-40 md:w-56">
-              <span className="material-symbols-outlined text-on-surface-variant dark:text-surface-variant text-md">
-                search
-              </span>
-              <input
-                className="bg-transparent border-none focus:ring-0 text-body-sm w-full ml-xs outline-none text-on-surface dark:text-surface-main pl-2"
-                placeholder="Search tasks..."
-                type="text"
-              />
-            </div>
-            
-            <button className="material-symbols-outlined text-on-surface-variant dark:text-surface-variant p-xs hover:bg-surface-container dark:hover:bg-on-surface-variant/40 transition-colors rounded-full cursor-pointer">
-              apps
-            </button>
-
-            <button
-              onClick={() => alert("Simulating team invitation flow...")}
-              className="hidden lg:inline-block px-md h-9 bg-primary text-white rounded-lg hover:brightness-110 font-button-text text-button-text active:scale-95 transition-all cursor-pointer"
-            >
-              Invite Team
-            </button>
-          </>
+          <Link
+            to="/team"
+            className="hidden lg:inline-flex items-center justify-center px-md h-9 bg-primary text-white rounded-lg hover:brightness-110 font-button-text text-button-text active:scale-95 transition-all"
+          >
+            Invite Team
+          </Link>
         )}
 
-        <button className="material-symbols-outlined text-on-surface-variant dark:text-surface-variant p-xs hover:bg-surface-container dark:hover:bg-on-surface-variant/40 transition-colors rounded-full cursor-pointer relative">
+        <button
+          type="button"
+          className="material-symbols-outlined text-on-surface-variant p-xs hover:bg-surface-container transition-colors rounded-full cursor-pointer relative"
+          title="Notifications"
+        >
           notifications
-          {(isTeamPage || isCalendarPage) && (
-            <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
-          )}
+          {(isTeamPage || isCalendarPage) && <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>}
         </button>
 
-        {/* Static moon icon toggle button to match design layout screenshot */}
-        <button 
-          onClick={handleToggleSimulated}
-          className="material-symbols-outlined text-on-surface-variant dark:text-surface-variant p-xs hover:bg-surface-container dark:hover:bg-on-surface-variant/40 transition-colors rounded-full cursor-pointer"
-        >
-          dark_mode
-        </button>
-        
-        <div className="h-8 w-[1px] bg-border-subtle dark:bg-outline-variant mx-xs"></div>
-        
+        <div className="h-8 w-[1px] bg-border-subtle mx-xs"></div>
+
         <div className="relative">
-          <button 
-            onClick={() => setProfileOpen(!profileOpen)}
-            className="flex items-center gap-sm p-1 pr-2 rounded-full hover:bg-surface-container-low dark:hover:bg-on-surface-variant/30 transition-colors duration-200 cursor-pointer"
+          <button
+            onClick={() => setProfileOpen((open) => !open)}
+            className="flex items-center gap-sm p-1 pr-2 rounded-full hover:bg-surface-container-low transition-colors duration-200 cursor-pointer"
           >
-            <img
-              className="w-8 h-8 rounded-full object-cover border border-border-subtle dark:border-outline-variant"
-              alt="Sarah Chen avatar."
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuD71_WId36rvfuPNoxKGJ-w-ieAFxLTHrKxJRxjd12MGRASKQsnGJXo3Kxcp-XK7kd0koMgUjDTMN1xEabBUKaLRGfzYB62aNGccvgt76GWi5ySyYH0bjhxtRj_j5BQkQ-tXgDecssf0nKafomlsYkJkvps5jobV94oPFs9D4q_1TkQnWj-YS1nQ60zxIBr9TZPKhSE6o9m04VJkWVQw4-jPJTaTYOBDc5tQ4B7DMbgcIzt0gJNpZ51Z43qbGnhgLBujLS4vpPA5oA"
-            />
-            <span className="font-title-md text-sm font-semibold text-text-heading dark:text-surface-main hidden sm:inline-block">
-              Sarah Chen
+            <span className="w-8 h-8 rounded-full bg-primary text-white border border-border-subtle flex items-center justify-center text-[11px] font-bold">
+              {initials}
             </span>
-            <span className="material-symbols-outlined text-on-surface-variant dark:text-surface-variant text-[18px]">
-              keyboard_arrow_down
+            <span className="font-title-md text-sm font-semibold text-text-heading hidden sm:inline-block">
+              {fullName}
             </span>
+            <span className="material-symbols-outlined text-on-surface-variant text-[18px]">keyboard_arrow_down</span>
           </button>
-          
+
           {profileOpen && (
-            <div className="absolute right-0 top-11 w-48 bg-surface-main dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant rounded-xl shadow-lg py-2 z-50 animate-fade-in text-left">
-              <div className="px-4 py-2 border-b border-border-subtle dark:border-outline-variant">
-                <p className="font-title-md text-sm leading-none text-on-surface dark:text-surface-main font-bold">Sarah Chen</p>
-                <p className="font-body-sm text-[10px] text-on-surface-variant dark:text-surface-variant mt-1">sarah.chen@phub.io</p>
+            <div className="absolute right-0 top-11 w-56 bg-surface-main border border-border-subtle rounded-xl shadow-lg py-2 z-50 animate-fade-in text-left">
+              <div className="px-4 py-2 border-b border-border-subtle">
+                <p className="font-title-md text-sm leading-none text-on-surface font-bold">{fullName}</p>
+                <p className="font-body-sm text-[10px] text-on-surface-variant mt-1">{user?.email}</p>
+                <p className="font-label-md text-[10px] text-primary mt-2 uppercase tracking-wider">
+                  {getRoleLabel(user)} Access
+                </p>
               </div>
-              <Link 
-                to="/" 
+              <Link
+                to="/dashboard"
                 onClick={() => setProfileOpen(false)}
-                className="block w-full px-4 py-2 text-body-sm text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-on-surface-variant/50 transition-colors"
+                className="block w-full px-4 py-2 text-body-sm text-on-surface-variant hover:bg-surface-container-low transition-colors"
+              >
+                Dashboard
+              </Link>
+              <Link
+                to="/"
+                onClick={() => setProfileOpen(false)}
+                className="block w-full px-4 py-2 text-body-sm text-on-surface-variant hover:bg-surface-container-low transition-colors"
               >
                 View Landing
               </Link>
-              <Link 
-                to="/login" 
-                onClick={() => setProfileOpen(false)}
-                className="block w-full px-4 py-2 text-body-sm text-error hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors font-semibold"
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="block w-full text-left px-4 py-2 text-body-sm text-error hover:bg-red-50 transition-colors font-semibold"
               >
                 Sign Out
-              </Link>
+              </button>
             </div>
           )}
         </div>
