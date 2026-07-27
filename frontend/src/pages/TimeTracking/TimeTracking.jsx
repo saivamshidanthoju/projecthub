@@ -373,8 +373,8 @@ export default function TimeTracking() {
 
         {/* Log Time Modal */}
         {isModalOpen && (
-          <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-[2px] flex items-center justify-center p-4 z-50 animate-fade-in">
-            <div className="bg-white border border-[#eef1f6] rounded-xl p-5 w-full max-w-sm shadow-xl text-left">
+          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-4 z-[9999] animate-fade-in">
+            <div className="bg-white border border-[#eef1f6] rounded-xl p-6 w-[400px] max-w-full shadow-2xl text-left">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-bold text-slate-800">Log Time for {activeDate.toLocaleDateString([], { month: "short", day: "numeric" })}</h3>
                 <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600">
@@ -391,7 +391,7 @@ export default function TimeTracking() {
                     autoFocus
                     value={logTitle}
                     onChange={(e) => setLogTitle(e.target.value)}
-                    placeholder="E.g. Frontend styling alignment"
+                    placeholder=""
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:border-[#2563eb] outline-none"
                   />
                 </div>
@@ -402,7 +402,7 @@ export default function TimeTracking() {
                     type="text"
                     value={logComment}
                     onChange={(e) => setLogComment(e.target.value)}
-                    placeholder="E.g. Aligned margins and pixel layout"
+                    placeholder=""
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:border-[#2563eb] outline-none"
                   />
                 </div>
@@ -417,7 +417,7 @@ export default function TimeTracking() {
                     required
                     value={logTime}
                     onChange={(e) => setLogTime(e.target.value)}
-                    placeholder="E.g. 2.5"
+                    placeholder=""
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:border-[#2563eb] outline-none"
                   />
                 </div>

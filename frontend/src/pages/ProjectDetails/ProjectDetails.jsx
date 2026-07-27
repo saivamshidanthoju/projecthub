@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import Sidebar from "../../components/Sidebar";
-import Header from "../../components/Header";
+import DoubleSidebarLayout from "../../layouts/DoubleSidebarLayout";
 import { useAuth } from "../../context/AuthContext";
 import { projectsApi, tasksApi, commentsApi, attachmentsApi } from "../../lib/api";
 
@@ -160,13 +159,9 @@ export default function ProjectDetails() {
   const statusColor = project.status === "COMPLETED" ? "bg-green-500" : project.status === "DELAYED" ? "bg-orange-500" : "bg-blue-500";
 
   return (
-    <div className="bg-surface-sunken dark:bg-inverse-surface text-on-surface w-full min-h-screen overflow-x-hidden flex">
-      <Sidebar />
-
-      <main className="flex-1 md:ml-64 flex flex-col min-h-screen">
-        <Header />
-
-        <div className="p-margin-desktop flex flex-col gap-lg max-w-[1440px] mx-auto w-full bg-surface-sunken dark:bg-surface-dim">
+    <DoubleSidebarLayout>
+      <div className="flex-1 overflow-y-auto p-6 bg-slate-50/30 text-left">
+        <div className="flex flex-col gap-lg max-w-[1440px] mx-auto w-full">
           <nav className="flex items-center gap-xs text-label-md font-label-md text-on-surface-variant dark:text-surface-variant mb-sm select-none">
             <Link className="hover:text-primary dark:hover:text-inverse-primary transition-colors" to="/dashboard">
               Dashboard
@@ -508,7 +503,7 @@ export default function ProjectDetails() {
           )}
 
         </div>
-      </main>
-    </div>
+      </div>
+    </DoubleSidebarLayout>
   );
 }

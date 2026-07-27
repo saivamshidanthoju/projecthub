@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import Sidebar from "../../components/Sidebar";
-import Header from "../../components/Header";
+import DoubleSidebarLayout from "../../layouts/DoubleSidebarLayout";
 import { useAuth } from "../../context/AuthContext";
 import { calendarApi, teamApi, tasksApi } from "../../lib/api";
 
@@ -186,13 +185,8 @@ export default function Calendar() {
     .slice(0, 5);
 
   return (
-    <div className="flex min-h-screen overflow-hidden bg-surface-sunken dark:bg-inverse-surface text-on-surface w-full">
-      <Sidebar />
-
-      <main className="flex-1 md:ml-64 flex flex-col h-screen overflow-hidden">
-        <Header />
-
-        <div className="flex-1 flex overflow-hidden bg-surface-sunken dark:bg-surface-dim">
+    <DoubleSidebarLayout>
+      <div className="flex-1 flex overflow-hidden bg-slate-50/30 text-left">
           
           {/* Column 1: Team Availability */}
           <aside className="w-80 shrink-0 border-r border-border-subtle dark:border-outline-variant flex flex-col p-lg bg-surface-main dark:bg-inverse-surface overflow-y-auto custom-scrollbar select-none">
@@ -385,7 +379,6 @@ export default function Calendar() {
             </div>
           </aside>
         </div>
-      </main>
 
       {/* Add Event Modal */}
       {isAddEventOpen && (
@@ -403,7 +396,7 @@ export default function Calendar() {
                 <label className="font-label-md text-label-md text-on-surface-variant">Event Title</label>
                 <input
                   className="w-full h-11 px-md bg-surface border border-border-subtle rounded-lg text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
-                  placeholder="e.g. Q4 Executive Sync"
+                  placeholder=""
                   type="text"
                   value={eventTitle}
                   onChange={(e) => setEventTitle(e.target.value)}
@@ -509,6 +502,6 @@ export default function Calendar() {
         </div>
       )}
 
-    </div>
+    </DoubleSidebarLayout>
   );
 }

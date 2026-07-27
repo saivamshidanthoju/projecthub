@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import Sidebar from "../../components/Sidebar";
-import Header from "../../components/Header";
+import DoubleSidebarLayout from "../../layouts/DoubleSidebarLayout";
 import { useAuth } from "../../context/AuthContext";
 import { teamApi } from "../../lib/api";
 
@@ -159,11 +158,8 @@ export default function Team() {
   };
 
   return (
-    <div className="flex min-h-screen overflow-hidden bg-surface-sunken dark:bg-inverse-surface text-on-surface w-full">
-      <Sidebar />
-
-      <main className="flex-1 md:ml-64 flex flex-col h-screen overflow-hidden">
-        <Header />
+    <DoubleSidebarLayout>
+      <div className="flex-1 overflow-y-auto p-6 bg-slate-50/30 text-left">
 
         <div className="flex-1 overflow-y-auto custom-scrollbar p-margin-desktop space-y-xl bg-surface-sunken dark:bg-surface-dim">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-md">
@@ -336,7 +332,7 @@ export default function Team() {
             </div>
           </div>
         </div>
-      </main>
+      </div>
 
       {isInviteOpen && (
         <div className="fixed inset-0 w-screen h-screen bg-black/50 backdrop-blur-sm z-[999] flex items-center justify-center p-md shrink-0">
@@ -362,7 +358,7 @@ export default function Team() {
                 <input
                   required
                   type="text"
-                  placeholder="e.g. Liam Neeson"
+                  placeholder=""
                   value={inviteName}
                   onChange={(e) => setInviteName(e.target.value)}
                   className="w-full border border-border-subtle rounded-lg px-md py-sm bg-surface text-body-md outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-on-surface"
@@ -376,7 +372,7 @@ export default function Team() {
                 <input
                   required
                   type="email"
-                  placeholder="e.g. liam@phub.io"
+                  placeholder=""
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
                   className="w-full border border-border-subtle rounded-lg px-md py-sm bg-surface text-body-md outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-on-surface"
@@ -447,6 +443,6 @@ export default function Team() {
           </div>
         </div>
       )}
-    </div>
+    </DoubleSidebarLayout>
   );
 }

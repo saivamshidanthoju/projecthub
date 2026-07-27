@@ -344,8 +344,8 @@ export default function MyWork() {
 
         {/* Modal to add/edit work items */}
         {isModalOpen && (
-          <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-[2px] flex items-center justify-center p-4 z-50 animate-fade-in">
-            <div className="bg-white border border-[#eef1f6] rounded-xl p-5 w-full max-w-sm shadow-xl text-left">
+          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-4 z-[9999] animate-fade-in">
+            <div className="bg-white border border-[#eef1f6] rounded-xl p-6 w-[400px] max-w-full shadow-2xl text-left">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-bold text-slate-800">
                   {editingCardId ? "Edit Work Item" : `Add Work Item to ${targetColumn}`}
@@ -364,7 +364,7 @@ export default function MyWork() {
                     autoFocus
                     value={taskTitle}
                     onChange={(e) => setTaskTitle(e.target.value)}
-                    placeholder="E.g. Refactor sidebar navigation"
+                    placeholder=""
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:border-[#2563eb] outline-none"
                   />
                 </div>

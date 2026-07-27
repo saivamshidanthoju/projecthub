@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import Sidebar from "../../components/Sidebar";
-import Header from "../../components/Header";
+import DoubleSidebarLayout from "../../layouts/DoubleSidebarLayout";
 import { useAuth } from "../../context/AuthContext";
 import { dashboardApi } from "../../lib/api";
 
@@ -111,12 +110,8 @@ export default function Reports() {
   const performers = userAnalytics?.mostActiveUsers || [];
 
   return (
-    <div className="flex min-h-screen overflow-hidden bg-surface-sunken dark:bg-inverse-surface text-on-surface w-full">
-      <Sidebar />
-
-      {/* Main Content Area */}
-      <main className="flex-1 md:ml-64 flex flex-col h-screen overflow-hidden relative">
-        <Header />
+    <DoubleSidebarLayout>
+      <div className="flex-1 overflow-y-auto p-6 bg-slate-50/30 text-left relative">
 
         {toastMessage && (
           <div className="absolute top-20 right-8 bg-inverse-surface text-surface-main dark:bg-surface-main dark:text-on-surface px-lg py-sm rounded-xl shadow-lg flex items-center gap-sm z-[999] border border-outline-variant/30 animate-fade-in font-body-sm text-[13px]">
@@ -484,7 +479,7 @@ export default function Reports() {
             </>
           )}
         </div>
-      </main>
-    </div>
+      </div>
+    </DoubleSidebarLayout>
   );
 }

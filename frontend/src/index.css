@@ -77,7 +77,7 @@
   line-height: 16px;
   letter-spacing: 0.05em;
   font-weight: 500;
-  font-family: "JetBrains Mono", monospace;
+  font-family: "Inter", sans-serif;
 }
 @utility text-title-lg {
   font-size: 20px;

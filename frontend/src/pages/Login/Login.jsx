@@ -124,7 +124,7 @@ export default function Login() {
                   className="w-full h-11 pl-md pr-[70px] rounded border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md text-body-md bg-surface"
                   id="org_id"
                   name="org_id"
-                  placeholder="acme-hq"
+                  placeholder=""
                   type="text"
                   value={orgId}
                   onChange={(e) => setOrgId(e.target.value)}
@@ -144,7 +144,7 @@ export default function Login() {
                 className="w-full h-11 px-md rounded border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md text-body-md bg-surface"
                 id="email"
                 name="email"
-                placeholder="john@company.com"
+                placeholder=""
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

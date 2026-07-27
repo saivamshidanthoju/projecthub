@@ -124,7 +124,7 @@ export default function Register() {
                   className="w-full h-11 px-md rounded border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md text-body-md bg-surface"
                   id="company_name"
                   name="company_name"
-                  placeholder="Acme Corp"
+                  placeholder=""
                   type="text"
                   value={companyName}
                   onChange={handleCompanyNameChange}
@@ -140,7 +140,7 @@ export default function Register() {
                     className="w-full h-11 pl-md pr-[70px] rounded border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md text-body-md bg-surface"
                     id="org_id"
                     name="org_id"
-                    placeholder="acme-hq"
+                    placeholder=""
                     type="text"
                     value={orgId}
                     onChange={(e) => setOrgId(e.target.value)}
@@ -164,7 +164,7 @@ export default function Register() {
                 className="w-full h-11 px-md rounded border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md text-body-md bg-surface"
                 id="full_name"
                 name="full_name"
-                placeholder="John Doe"
+                placeholder=""
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
@@ -180,7 +180,7 @@ export default function Register() {
                 className="w-full h-11 px-md rounded border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md text-body-md bg-surface"
                 id="email"
                 name="email"
-                placeholder="john@company.com"
+                placeholder=""
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -197,7 +197,7 @@ export default function Register() {
                   className="w-full h-11 px-md rounded border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md text-body-md bg-surface"
                   id="password"
                   name="password"
-                  placeholder="Minimum 6 chars"
+                  placeholder=""
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

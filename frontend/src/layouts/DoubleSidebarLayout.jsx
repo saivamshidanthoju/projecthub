@@ -108,7 +108,6 @@ export default function DoubleSidebarLayout({ children }) {
   // Left Sidebar items
   const leftNavItems = [
     { icon: Home, active: isHomeSelected, to: "/my-work" },
-    { icon: MessageSquare, active: false, onClick: () => alert("Chat module loaded. Tap view channels inside projects for live chats.") },
     { icon: ListChecks, active: pathname === "/my-tasks", to: "/my-tasks" },
     { icon: Briefcase, active: pathname === "/projects", to: "/projects" },
   ];
@@ -238,9 +237,6 @@ export default function DoubleSidebarLayout({ children }) {
 
             {/* Apps and Quick Add */}
             <div className="flex flex-col items-center gap-3 w-full">
-              <div className="w-9 h-9 flex items-center justify-center text-white/70 hover:bg-white/10 hover:text-white rounded-xl cursor-pointer">
-                <Grid size={19} />
-              </div>
               <div 
                 onClick={() => setIsQuickAddModalOpen(true)}
                 className="w-6 h-6 flex items-center justify-center bg-white text-[#2f5ad8] rounded-full hover:scale-105 active:scale-95 cursor-pointer shadow transition-transform"
@@ -400,8 +396,8 @@ export default function DoubleSidebarLayout({ children }) {
       
       {/* Search Spotlight Modal */}
       {isSearchModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-[1px] flex items-start justify-center pt-24 p-4 z-50 animate-fade-in">
-          <div className="bg-white border border-slate-200 rounded-xl w-full max-w-lg shadow-2xl overflow-hidden text-left">
+        <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-[1px] flex items-start justify-center pt-24 p-4 z-[9999] animate-fade-in">
+          <div className="bg-white border border-slate-200 rounded-xl w-[480px] max-w-full shadow-2xl overflow-hidden text-left">
             <div className="flex items-center px-4 py-3 border-b border-slate-100 gap-3">
               <Search size={18} className="text-slate-400" />
               <input
@@ -444,8 +440,8 @@ export default function DoubleSidebarLayout({ children }) {
 
       {/* Upgrade Premium Modal */}
       {isUpgradeModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-md shadow-2xl p-6 text-center text-left">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-4 z-[9999] animate-fade-in">
+          <div className="bg-white border border-slate-200 rounded-2xl w-[400px] max-w-full shadow-2xl p-6 text-center text-left">
             <div className="flex justify-end">
               <button onClick={() => setIsUpgradeModalOpen(false)} className="text-slate-400 hover:text-slate-600">
                 <X size={20} />
@@ -480,7 +476,7 @@ export default function DoubleSidebarLayout({ children }) {
       {/* New View Modal */}
       {isNewViewModalOpen && (
         <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-[2px] flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white border border-slate-200 rounded-xl p-5 w-full max-w-sm shadow-xl text-left">
+          <div className="bg-white border border-slate-200 rounded-xl p-6 w-[400px] max-w-full shadow-xl text-left">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-bold text-slate-800">Create New View</h3>
               <button onClick={() => setIsNewViewModalOpen(false)} className="text-slate-400 hover:text-slate-600">
@@ -497,7 +493,7 @@ export default function DoubleSidebarLayout({ children }) {
                   autoFocus
                   value={newViewName}
                   onChange={(e) => setNewViewName(e.target.value)}
-                  placeholder="E.g. Development Board"
+                  placeholder=""
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:border-[#2563eb] outline-none"
                 />
               </div>
@@ -525,7 +521,7 @@ export default function DoubleSidebarLayout({ children }) {
       {/* Quick Add Task/Note Modal */}
       {isQuickAddModalOpen && (
         <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-[2px] flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white border border-slate-200 rounded-xl p-5 w-full max-w-sm shadow-xl text-left">
+          <div className="bg-white border border-slate-200 rounded-xl p-6 w-[400px] max-w-full shadow-xl text-left">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-bold text-slate-800">Quick Add Shortcut</h3>
               <button onClick={() => setIsQuickAddModalOpen(false)} className="text-slate-400 hover:text-slate-600">
@@ -562,7 +558,7 @@ export default function DoubleSidebarLayout({ children }) {
                   autoFocus
                   value={quickTitle}
                   onChange={(e) => setQuickTitle(e.target.value)}
-                  placeholder={`E.g. Quick ${quickAddType} name`}
+                  placeholder=""
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:border-[#2563eb] outline-none"
                 />
               </div>

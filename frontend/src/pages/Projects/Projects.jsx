@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import Sidebar from "../../components/Sidebar";
-import Header from "../../components/Header";
+import DoubleSidebarLayout from "../../layouts/DoubleSidebarLayout";
 import { useAuth } from "../../context/AuthContext";
 import { projectsApi } from "../../lib/api";
 
@@ -18,10 +17,10 @@ function mapProjectFromBackend(proj) {
   
   const statusColorConfig = {
     "In Progress": {
-      bg: "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400 border border-blue-200 dark:border-blue-800/30",
-      dot: "bg-blue-500",
+      bg: "bg-slate-50 text-slate-600 dark:bg-slate-900/40 dark:text-slate-400 border border-slate-200 dark:border-slate-800/30",
+      dot: "bg-slate-400",
       icon: "terminal",
-      iconBg: "bg-primary-fixed-dim text-primary"
+      iconBg: "bg-slate-100 text-slate-600"
     },
     "Completed": {
       bg: "bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-400 border border-green-200 dark:border-green-800/30",
@@ -166,13 +165,9 @@ export default function Projects() {
   );
 
   return (
-    <div className="bg-surface-sunken dark:bg-inverse-surface text-on-surface w-full min-h-screen overflow-x-hidden flex">
-      <Sidebar />
-
-      <main className="flex-1 md:ml-64 flex flex-col min-h-screen">
-        <Header />
-
-        <div className="p-margin-desktop flex flex-col gap-lg max-w-[1440px] mx-auto w-full bg-surface-sunken dark:bg-surface-dim">
+    <DoubleSidebarLayout>
+      <div className="flex-1 overflow-y-auto p-6 bg-slate-50/30 text-left">
+        <div className="flex flex-col gap-lg max-w-[1440px] mx-auto w-full">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-md">
             <div>
               <h2 className="font-headline-lg text-headline-lg text-text-heading dark:text-surface-main">
@@ -226,11 +221,8 @@ export default function Projects() {
                 Total Projects
               </p>
               <div className="flex items-end justify-between">
-                <span className="text-headline-md font-headline-md text-on-surface dark:text-surface-main">
+                <span className="text-[20px] font-bold text-slate-700">
                   {projects.length}
-                </span>
-                <span className="text-primary dark:text-inverse-primary text-xs font-medium bg-surface-container-low dark:bg-on-surface-variant/30 px-2 py-0.5 rounded-full select-none">
-                  Live DB
                 </span>
               </div>
             </div>
@@ -240,11 +232,8 @@ export default function Projects() {
                 Completed
               </p>
               <div className="flex items-end justify-between">
-                <span className="text-headline-md font-headline-md text-on-surface dark:text-surface-main">
+                <span className="text-[20px] font-bold text-slate-700">
                   {projects.filter((p) => p.status === "Completed").length}
-                </span>
-                <span className="text-green-600 dark:text-green-400 text-xs font-medium bg-green-50 dark:bg-green-950/20 px-2 py-0.5 rounded-full select-none">
-                  Verified
                 </span>
               </div>
             </div>
@@ -254,26 +243,23 @@ export default function Projects() {
                 Team Efficiency
               </p>
               <div className="flex items-end justify-between">
-                <span className="text-headline-md font-headline-md text-on-surface dark:text-surface-main">
+                <span className="text-[20px] font-bold text-slate-700">
                   94%
                 </span>
                 <div className="flex -space-x-2 select-none">
-                  <div className="w-6 h-6 rounded-full border-2 border-surface-main dark:border-inverse-surface bg-blue-100"></div>
-                  <div className="w-6 h-6 rounded-full border-2 border-surface-main dark:border-inverse-surface bg-blue-200"></div>
+                  <div className="w-6 h-6 rounded-full border-2 border-surface-main dark:border-inverse-surface bg-slate-100"></div>
+                  <div className="w-6 h-6 rounded-full border-2 border-surface-main dark:border-inverse-surface bg-slate-200"></div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-surface-main dark:bg-inverse-surface p-md border border-border-subtle dark:border-outline-variant rounded-xl shadow-sm border-l-4 border-l-primary">
+            <div className="bg-surface-main dark:bg-inverse-surface p-md border border-border-subtle dark:border-outline-variant rounded-xl shadow-sm">
               <p className="text-label-md font-label-md text-on-surface-variant dark:text-surface-variant mb-xs uppercase tracking-wider text-[10px]">
                 Next Deadline
               </p>
               <div className="flex items-end justify-between">
-                <span className="text-headline-md font-headline-md text-primary dark:text-inverse-primary">
+                <span className="text-[20px] font-bold text-slate-700">
                   02d 14h
-                </span>
-                <span className="material-symbols-outlined text-primary dark:text-inverse-primary select-none">
-                  timer
                 </span>
               </div>
             </div>
@@ -436,13 +422,13 @@ export default function Projects() {
               
               <div className="space-y-lg">
                 <div className="flex gap-md">
-                  <div className="w-8 h-8 rounded-full bg-primary-fixed-dim dark:bg-on-primary-fixed-variant flex items-center justify-center shrink-0 text-primary dark:text-inverse-primary select-none">
+                  <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center shrink-0 text-slate-600 dark:text-slate-400 select-none">
                     <span className="material-symbols-outlined text-[16px]">upload_file</span>
                   </div>
                   <div>
                     <p className="text-body-md text-text-heading dark:text-surface-main">
                       <span className="font-semibold">Sarah Jenkins</span> uploaded 4 new assets to{" "}
-                      <span className="text-primary dark:text-inverse-primary font-medium">Mobile App V3.2</span>
+                      <span className="text-slate-700 dark:text-slate-300 font-semibold">Mobile App V3.2</span>
                     </p>
                     <p className="text-body-sm text-on-surface-variant dark:text-surface-variant">2 hours ago</p>
                   </div>
@@ -455,7 +441,7 @@ export default function Projects() {
                   <div>
                     <p className="text-body-md text-text-heading dark:text-surface-main">
                       <span className="font-semibold">Project Milestone</span> achieved: Beta Release of{" "}
-                      <span className="text-primary dark:text-inverse-primary font-medium">Global Payroll Sync</span>
+                      <span className="text-slate-700 dark:text-slate-300 font-semibold">Global Payroll Sync</span>
                     </p>
                     <p className="text-body-sm text-on-surface-variant dark:text-surface-variant">
                       Yesterday at 4:30 PM
@@ -470,7 +456,7 @@ export default function Projects() {
                   <div>
                     <p className="text-body-md text-text-heading dark:text-surface-main">
                       <span className="font-semibold">System Alert:</span> Budget overrun detected on{" "}
-                      <span className="text-primary dark:text-inverse-primary font-medium">Quantum API Gateway</span>
+                      <span className="text-slate-700 dark:text-slate-300 font-semibold">Quantum API Gateway</span>
                     </p>
                     <p className="text-body-sm text-on-surface-variant dark:text-surface-variant">Oct 12, 2023</p>
                   </div>
@@ -486,42 +472,42 @@ export default function Projects() {
               <div className="space-y-md flex-1">
                 <div className="flex items-center justify-between">
                   <span className="text-body-md text-on-surface dark:text-surface-main">Engineering</span>
-                  <span className="font-label-md text-label-md bg-surface-container-high dark:bg-on-surface-variant text-on-surface-variant dark:text-surface-main px-2 py-0.5 rounded font-bold">
+                  <span className="text-slate-500 bg-slate-100 text-[10px] font-bold px-2 py-0.5 rounded">
                     42%
                   </span>
                 </div>
                 <div className="w-full h-2 bg-surface-sunken dark:bg-on-surface-variant/30 rounded-full overflow-hidden">
-                  <div className="h-full bg-primary dark:bg-inverse-primary rounded-full transition-all duration-1000" style={{ width: "42%" }}></div>
+                  <div className="h-full bg-slate-500 rounded-full transition-all duration-1000" style={{ width: "42%" }}></div>
                 </div>
 
                 <div className="flex items-center justify-between pt-base">
                   <span className="text-body-md text-on-surface dark:text-surface-main">Product Design</span>
-                  <span className="font-label-md text-label-md bg-surface-container-high dark:bg-on-surface-variant text-on-surface-variant dark:text-surface-main px-2 py-0.5 rounded font-bold">
+                  <span className="text-slate-500 bg-slate-100 text-[10px] font-bold px-2 py-0.5 rounded">
                     28%
                   </span>
                 </div>
                 <div className="w-full h-2 bg-surface-sunken dark:bg-on-surface-variant/30 rounded-full overflow-hidden">
-                  <div className="h-full bg-tertiary-container dark:bg-tertiary rounded-full transition-all duration-1000" style={{ width: "28%" }}></div>
+                  <div className="h-full bg-slate-400 rounded-full transition-all duration-1000" style={{ width: "28%" }}></div>
                 </div>
 
                 <div className="flex items-center justify-between pt-base">
                   <span className="text-body-md text-on-surface dark:text-surface-main">Marketing</span>
-                  <span className="font-label-md text-label-md bg-surface-container-high dark:bg-on-surface-variant text-on-surface-variant dark:text-surface-main px-2 py-0.5 rounded font-bold">
+                  <span className="text-slate-500 bg-slate-100 text-[10px] font-bold px-2 py-0.5 rounded">
                     15%
                   </span>
                 </div>
                 <div className="w-full h-2 bg-surface-sunken dark:bg-on-surface-variant/30 rounded-full overflow-hidden">
-                  <div className="h-full bg-secondary dark:bg-secondary-fixed-dim rounded-full transition-all duration-1000" style={{ width: "15%" }}></div>
+                  <div className="h-full bg-slate-300 rounded-full transition-all duration-1000" style={{ width: "15%" }}></div>
                 </div>
 
                 <div className="flex items-center justify-between pt-base">
                   <span className="text-body-md text-on-surface dark:text-surface-main">Quality Assurance</span>
-                  <span className="font-label-md text-label-md bg-surface-container-high dark:bg-on-surface-variant text-on-surface-variant dark:text-surface-main px-2 py-0.5 rounded font-bold">
+                  <span className="text-slate-500 bg-slate-100 text-[10px] font-bold px-2 py-0.5 rounded">
                     15%
                   </span>
                 </div>
                 <div className="w-full h-2 bg-surface-sunken dark:bg-on-surface-variant/30 rounded-full overflow-hidden">
-                  <div className="h-full bg-surface-tint dark:bg-on-primary-fixed-variant rounded-full transition-all duration-1000" style={{ width: "15%" }}></div>
+                  <div className="h-full bg-slate-400 rounded-full transition-all duration-1000" style={{ width: "15%" }}></div>
                 </div>
               </div>
               
@@ -534,7 +520,7 @@ export default function Projects() {
             </div>
           </div>
         </div>
-      </main>
+      </div>
 
       {isModalOpen && (
         <div className="fixed inset-0 w-screen h-screen bg-black/50 backdrop-blur-sm z-[999] flex items-center justify-center p-md shrink-0 animate-fade-in">
@@ -559,7 +545,7 @@ export default function Projects() {
                 <input
                   id="proj_name"
                   className="w-full h-11 px-md bg-surface border border-border-subtle dark:border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-on-surface dark:text-surface-main"
-                  placeholder="e.g. Nexus CRM Redesign"
+                  placeholder=""
                   type="text"
                   value={newProjName}
                   onChange={(e) => setNewProjName(e.target.value)}
@@ -574,7 +560,7 @@ export default function Projects() {
                 <input
                   id="proj_dept"
                   className="w-full h-11 px-md bg-surface border border-border-subtle dark:border-outline-variant rounded-lg text-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-on-surface dark:text-surface-main"
-                  placeholder="e.g. Frontend Development"
+                  placeholder=""
                   type="text"
                   value={newProjDept}
                   onChange={(e) => setNewProjDept(e.target.value)}
@@ -626,6 +612,6 @@ export default function Projects() {
           </div>
         </div>
       )}
-    </div>
+    </DoubleSidebarLayout>
   );
 }
