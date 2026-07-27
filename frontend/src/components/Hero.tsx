@@ -98,8 +98,8 @@ export default function Hero() {
           >
             <img
               className="rounded-lg shadow-inner w-full h-auto"
-              alt="A clean, high-fidelity user interface dashboard of a project management software. The layout features a dense multi-column bento grid showing real-time Gantt charts, team velocity graphs, and colorful task cards."
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8ls_znhOCjPDDyWwHHo1Lo8jVtDi-NkR_1gzQ-b6AJc1WiT7oSkSck7YV9QqrQ-D1wjoflXViVixQDYY-RWKHsSDa3ZdyhTpOzEpCU9CG-u6lc3xXxZ-QcC-nhfe3KSa4ODSzb05xCI-RaX53kZIUs6F7b9lSSg5I3dLyMK8H_XRbtpSwWc4ABfmDOCuRNKk5cAa0ph6yXKB5ojeITFyFkhvs-T1BTsCT6ujVpeTeEGs4YQzVq7EpH2gbZeV1bQHP_U9hroSA-ig"
+              alt="A clean, high-fidelity user interface dashboard of the actual ProjectHub software showing active projects lists, team metrics, and workload distribution charts."
+              src="/landing_hero.png"
             />
           </motion.div>
           <motion.div
@@ -112,25 +112,27 @@ export default function Hero() {
               damping: 15,
             }}
             whileHover={{ y: -4, scale: 1.02 }}
-            className="absolute -bottom-6 -left-6 bg-white/90 backdrop-blur-md border border-border-subtle rounded-lg p-5 shadow-lg w-60 hidden lg:block cursor-pointer z-20"
+            className="absolute -bottom-6 -left-6 bg-white/95 backdrop-blur-md border border-border-subtle rounded-xl p-3 shadow-lg w-56 hidden lg:block cursor-pointer z-20"
           >
-            <div className="flex items-center gap-md mb-3">
-              <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                <span className="material-symbols-outlined text-[20px]">
-                  bolt
-                </span>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
+                  <span className="material-symbols-outlined text-[16px]">
+                    sticky_note
+                  </span>
+                </div>
+                <div className="text-left">
+                  <p className="font-label-md text-[9px] uppercase tracking-wider text-on-surface-variant font-bold">
+                    Interactive Notepad
+                  </p>
+                  <p className="font-title-md text-xs text-slate-800 font-bold">
+                    Quick Notes & Ideas
+                  </p>
+                </div>
               </div>
-              <div className="text-left">
-                <p className="font-label-md text-[10px] uppercase tracking-wider text-on-surface-variant font-bold">
-                  System Velocity
-                </p>
-                <p className="font-title-md text-sm text-primary font-bold">
-                  +24% Increase
-                </p>
+              <div className="w-full h-24 overflow-hidden rounded-lg">
+                <img src="/landing_sticky.png" className="w-full h-full object-cover" alt="Sticky notes layout" />
               </div>
-            </div>
-            <div className="w-full bg-surface-container h-1 rounded-full overflow-hidden">
-              <div className="bg-primary w-3/4 h-full"></div>
             </div>
           </motion.div>
         </div>
