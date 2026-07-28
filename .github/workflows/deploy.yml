@@ -22,28 +22,54 @@ jobs:
 
             cd ~/projecthub
 
-            echo "Pulling latest code..."
-            git pull origin main
+            echo "========================================"
+            echo "Cleaning local repository..."
+            echo "========================================"
+            git fetch origin
+            git reset --hard origin/main
+            git clean -fd
 
+            echo "========================================"
+            echo "Current Commit"
+            echo "========================================"
+            git log --oneline -1
+
+            echo "========================================"
             echo "Installing backend dependencies..."
+            echo "========================================"
             cd backend
             npm install
 
+            echo "========================================"
             echo "Restarting backend..."
+            echo "========================================"
             pm2 restart projecthub-backend
+            pm2 save
 
+            echo "========================================"
             echo "Installing frontend dependencies..."
+            echo "========================================"
             cd ../frontend
             npm install
 
+            echo "========================================"
             echo "Building frontend..."
+            echo "========================================"
             npm run build
 
+            echo "========================================"
             echo "Deploying frontend..."
+            echo "========================================"
+            sudo mkdir -p /var/www/projecthub
             sudo rm -rf /var/www/projecthub/*
             sudo cp -r dist/* /var/www/projecthub/
 
-            echo "Reloading nginx..."
+            echo "========================================"
+            echo "Reloading Nginx..."
+            echo "========================================"
+            sudo nginx -t
             sudo systemctl reload nginx
 
-            echo "Deployment completed successfully!"
+            echo "========================================"
+            echo "Deployment Successful!"
+            echo "========================================"
