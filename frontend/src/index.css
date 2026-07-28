@@ -2,58 +2,58 @@
 @custom-variant dark (&:where(.projecthub-never-dark, .projecthub-never-dark *));
 
 @theme {
-  --color-on-tertiary-fixed-variant: #2c24ce;
-  --color-surface-tint: #0053db;
-  --color-tertiary: #3c39dc;
+  --color-on-tertiary-fixed-variant: #86198f;
+  --color-surface-tint: #be185d;
+  --color-tertiary: #db2777;
   --color-border-subtle: #E2E8F0;
-  --color-on-primary-fixed-variant: #003ea8;
-  --color-primary-fixed-dim: #b4c5ff;
+  --color-on-primary-fixed-variant: #831843;
+  --color-primary-fixed-dim: #fbcfe8;
   --color-on-surface-variant: #434655;
   --color-text-body: #334155;
   --color-on-tertiary: #ffffff;
-  --color-surface-container-low: #eff4ff;
-  --color-on-tertiary-container: #f1eeff;
-  --color-tertiary-fixed: #e1dfff;
-  --color-primary-container: #2563eb;
+  --color-surface-container-low: #fff1f2;
+  --color-on-tertiary-container: #fae8ff;
+  --color-tertiary-fixed: #fae8ff;
+  --color-primary-container: #be185d;
   --color-on-error: #ffffff;
   --color-error-container: #ffdad6;
-  --color-surface: #f8f9ff;
-  --color-text-heading: #0F172A;
-  --color-inverse-on-surface: #eaf1ff;
-  --color-tertiary-fixed-dim: #c1c1ff;
+  --color-surface: #fdfafb;
+  --color-text-heading: #4c0519;
+  --color-inverse-on-surface: #fff1f2;
+  --color-tertiary-fixed-dim: #f5d0fe;
   --color-surface-container-lowest: #ffffff;
-  --color-on-tertiary-fixed: #09006b;
-  --color-surface-dim: #cbdbf5;
+  --color-on-tertiary-fixed: #4a044e;
+  --color-surface-dim: #fecdd3;
   --color-surface-main: #FFFFFF;
-  --color-secondary-container: #dae2fd;
-  --color-surface-bright: #f8f9ff;
-  --color-on-primary-container: #eeefff;
-  --color-primary: #004ac6;
-  --color-background: #f8f9ff;
-  --color-secondary-fixed-dim: #bec6e0;
+  --color-secondary-container: #ffe4e6;
+  --color-surface-bright: #fdfafb;
+  --color-on-primary-container: #fdf2f8;
+  --color-primary: #9d174d;
+  --color-background: #fdfafb;
+  --color-secondary-fixed-dim: #fecdd3;
   --color-surface-sunken: #F8FAFC;
-  --color-secondary-fixed: #dae2fd;
-  --color-surface-variant: #d3e4fe;
-  --color-primary-fixed: #dbe1ff;
+  --color-secondary-fixed: #ffe4e6;
+  --color-surface-variant: #ffe4e6;
+  --color-primary-fixed: #fce7f3;
   --color-on-primary: #ffffff;
-  --color-surface-container-highest: #d3e4fe;
-  --color-secondary: #565e74;
-  --color-surface-container: #e5eeff;
-  --color-on-secondary-fixed: #131b2e;
-  --color-surface-container-high: #dce9ff;
-  --color-on-surface: #0b1c30;
+  --color-surface-container-highest: #fda4af;
+  --color-secondary: #881337;
+  --color-surface-container: #ffe4e6;
+  --color-on-secondary-fixed: #4c0519;
+  --color-surface-container-high: #fecdd3;
+  --color-on-surface: #4c0519;
   --color-outline: #737686;
-  --color-on-secondary-container: #5c647a;
-  --color-on-secondary-fixed-variant: #3f465c;
+  --color-on-secondary-container: #9f1239;
+  --color-on-secondary-fixed-variant: #881337;
   --color-outline-variant: #c3c6d7;
-  --color-on-background: #0b1c30;
-  --color-inverse-surface: #213145;
+  --color-on-background: #4c0519;
+  --color-inverse-surface: #4c0519;
   --color-on-secondary: #ffffff;
-  --color-inverse-primary: #b4c5ff;
+  --color-inverse-primary: #fbcfe8;
   --color-error: #ba1a1a;
   --color-on-error-container: #93000a;
-  --color-on-primary-fixed: #00174b;
-  --color-tertiary-container: #5756f5;
+  --color-on-primary-fixed: #4c0519;
+  --color-tertiary-container: #e879f9;
 
   --radius-default: 0.25rem;
   --radius-lg: 0.5rem;
@@ -148,13 +148,13 @@
 
 html, body, #root {
   min-height: 100%;
-  background-color: #f8f9ff;
+  background-color: #fdfafb;
 }
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #f8f9ff;
-  color: #0b1c30;
+  background-color: #fdfafb;
+  color: #4c0519;
 }
 
 .material-symbols-outlined {
@@ -168,11 +168,11 @@ body {
 }
 
 .hero-gradient {
-  background: radial-gradient(circle at 50% -20%, #e0e6ff 0%, #f8f9ff 70%);
+  background: radial-gradient(circle at 50% -20%, #ffe4e6 0%, #fdfafb 70%);
   background-image: 
-    radial-gradient(circle at 50% -20%, rgba(219, 225, 255, 0.7) 0%, #f8f9ff 70%),
-    linear-gradient(to right, rgba(0, 74, 198, 0.025) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 74, 198, 0.025) 1px, transparent 1px);
+    radial-gradient(circle at 50% -20%, rgba(254, 205, 211, 0.7) 0%, #fdfafb 70%),
+    linear-gradient(to right, rgba(157, 23, 77, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(157, 23, 77, 0.025) 1px, transparent 1px);
   background-size: 100% 100%, 32px 32px, 32px 32px;
 }
 

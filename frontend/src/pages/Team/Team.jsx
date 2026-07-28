@@ -14,7 +14,7 @@ function mapMemberFromBackend(member) {
   const badgeColorMap = {
     1: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/30",
     2: "bg-purple-100 text-purple-700 dark:bg-purple-950/40 dark:text-purple-400 border border-purple-200 dark:border-purple-800/30",
-    3: "bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400 border border-blue-200 dark:border-blue-800/30"
+    3: "bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-200 dark:border-rose-800/30"
   };
 
   const fullName = `${member.first_name || ""} ${member.last_name || ""}`.trim() || member.email;

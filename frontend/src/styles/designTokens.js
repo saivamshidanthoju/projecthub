@@ -4,21 +4,21 @@
  */
 export const designTokens = {
   colors: {
-    // Left narrow sidebar (royal blue/navy)
-    sidebarLeftBg: "#2f5ad8",
-    sidebarLeftLogoBg: "#1f45be",
+    // Left narrow sidebar (burgundy/plum)
+    sidebarLeftBg: "#4c0519",
+    sidebarLeftLogoBg: "#881337",
     sidebarLeftIconColor: "#ffffff",
     sidebarLeftIconOpacity: "0.75",
     sidebarLeftIconActiveBg: "#ffffff",
-    sidebarLeftIconActiveColor: "#2f5ad8",
+    sidebarLeftIconActiveColor: "#9d174d",
 
     // Middle Home sidebar
     sidebarMiddleBg: "#f8f9fa",
     sidebarMiddleBorder: "#eef1f6",
     sidebarMiddleText: "#334155",
     sidebarMiddleTextHover: "#1e293b",
-    sidebarMiddleTextSelected: "#2563eb",
-    sidebarMiddleBgSelected: "#eff6ff",
+    sidebarMiddleTextSelected: "#9d174d",
+    sidebarMiddleBgSelected: "#fff1f2",
 
     // General layout background and text
     mainBg: "#ffffff",
@@ -31,11 +31,11 @@ export const designTokens = {
     // Interactive states
     hoverBg: "#f1f5f9",
     activeBg: "#e2e8f0",
-    focusRing: "rgba(37, 99, 235, 0.2)",
+    focusRing: "rgba(157, 23, 77, 0.2)",
     
     // Status colors
     statusTodo: "#64748b",
-    statusInProgress: "#3b82f6",
+    statusInProgress: "#be185d",
     statusReview: "#a855f7",
     statusDone: "#10b981",
     

@@ -63,7 +63,7 @@ export default function Hero() {
               to="/register"
               whileHover={{
                 scale: 1.02,
-                boxShadow: "0 10px 15px -3px rgba(0, 74, 198, 0.2)",
+                boxShadow: "0 10px 15px -3px rgba(157, 23, 77, 0.2)",
               }}
               whileTap={{ scale: 0.98 }}
               className="bg-primary text-on-primary px-8 py-3.5 rounded-lg font-button-text text-button-text shadow-md cursor-pointer text-center font-semibold"

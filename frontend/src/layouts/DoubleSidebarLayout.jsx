@@ -28,7 +28,7 @@ import {
 // Helper component for narrow sidebar icons
 const NarrowSidebarIcon = ({ Icon, active, to, onClick }) => {
   const activeClass = active 
-    ? "bg-white text-[#2f5ad8] rounded-xl shadow-sm"
+    ? "bg-white text-[#9d174d] rounded-xl shadow-sm"
     : "text-white/75 hover:bg-white/10 hover:text-white rounded-xl";
 
   const content = (
@@ -117,22 +117,22 @@ export default function DoubleSidebarLayout({ children }) {
   // Middle Sidebar Home section items
   const homeItems = [
     { label: "My Work", path: "/my-work", icon: (active) => (
-      <div className={`relative w-4 h-4 border ${active ? "border-[#2563eb]" : "border-slate-400"} rounded flex items-center justify-center shrink-0`}>
-        <Star size={10} className={active ? "fill-[#2563eb] text-[#2563eb]" : "text-slate-400"} strokeWidth={3} />
+      <div className={`relative w-4 h-4 border ${active ? "border-[#9d174d]" : "border-slate-400"} rounded flex items-center justify-center shrink-0`}>
+        <Star size={10} className={active ? "fill-[#9d174d] text-[#9d174d]" : "text-slate-400"} strokeWidth={3} />
       </div>
     )},
     { label: "My Tasks", path: "/my-tasks", icon: (active) => (
-      <ListChecks size={15} className={active ? "text-[#2563eb]" : "text-slate-500"} />
+      <ListChecks size={15} className={active ? "text-[#9d174d]" : "text-slate-500"} />
     )},
     { label: "Time Tracking", path: "/time-tracking", icon: (active) => (
-      <Clock size={15} className={active ? "text-[#2563eb]" : "text-slate-500"} />
+      <Clock size={15} className={active ? "text-[#9d174d]" : "text-slate-500"} />
     )},
     { label: "Notepad", path: "/notepad", icon: (active) => (
-      <FileText size={15} className={active ? "text-[#2563eb]" : "text-slate-500"} />
+      <FileText size={15} className={active ? "text-[#9d174d]" : "text-slate-500"} />
     )},
     { label: "Notifications", path: "/notifications", icon: (active) => (
       <div className="relative">
-        <Bell size={15} className={active ? "text-[#2563eb]" : "text-slate-500"} />
+        <Bell size={15} className={active ? "text-[#9d174d]" : "text-slate-500"} />
       </div>
     )},
   ];
@@ -207,18 +207,18 @@ export default function DoubleSidebarLayout({ children }) {
       
       {/* 1. Left Narrow Blue Sidebar */}
       {!isCollapsed && (
-        <aside className="hidden md:flex flex-col items-center py-4 bg-[#2f5ad8] w-14 h-full shrink-0 select-none justify-between border-r border-[#1f45be]/10 z-20">
+        <aside className="hidden md:flex flex-col items-center py-4 bg-[#4c0519] w-14 h-full shrink-0 select-none justify-between border-r border-[#881337]/10 z-20">
           <div className="flex flex-col items-center gap-4 w-full">
             {/* Logo Container */}
             <div 
               onClick={() => navigate("/my-work")}
-              className="w-10 h-10 bg-[#1c3f95] rounded-xl flex items-center justify-center text-white mb-2 cursor-pointer shadow-inner"
+              className="w-10 h-10 bg-[#881337] rounded-xl flex items-center justify-center text-white mb-2 cursor-pointer shadow-inner"
             >
               <div className="grid grid-cols-2 gap-0.5 w-5 h-5">
-                <div className="bg-[#b4c5ff] rounded-sm"></div>
+                <div className="bg-[#fbcfe8] rounded-sm"></div>
                 <div className="bg-[#10b981] rounded-sm"></div>
-                <div className="bg-[#b4c5ff] rounded-sm"></div>
-                <div className="bg-[#60a5fa] rounded-sm"></div>
+                <div className="bg-[#fbcfe8] rounded-sm"></div>
+                <div className="bg-[#fda4af] rounded-sm"></div>
               </div>
             </div>
 
@@ -241,7 +241,7 @@ export default function DoubleSidebarLayout({ children }) {
             <div className="flex flex-col items-center gap-3 w-full">
               <div 
                 onClick={() => setIsQuickAddModalOpen(true)}
-                className="w-6 h-6 flex items-center justify-center bg-white text-[#2f5ad8] rounded-full hover:scale-105 active:scale-95 cursor-pointer shadow transition-transform"
+                className="w-6 h-6 flex items-center justify-center bg-white text-[#9d174d] rounded-full hover:scale-105 active:scale-95 cursor-pointer shadow transition-transform"
                 title="Quick Add Task/Note"
               >
                 <Plus size={14} strokeWidth={3} />
@@ -318,7 +318,7 @@ export default function DoubleSidebarLayout({ children }) {
                     onClick={() => navigate(item.path)}
                     className={`flex items-center gap-3 px-3 py-[7px] text-[13px] rounded-lg transition-colors cursor-pointer ${
                       isSelected
-                        ? "bg-[#eff6ff] text-[#2563eb] font-semibold"
+                        ? "bg-[#fff1f2] text-[#9d174d] font-semibold"
                         : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
                     }`}
                   >
@@ -379,7 +379,7 @@ export default function DoubleSidebarLayout({ children }) {
 
               <button 
                 onClick={() => setIsNewViewModalOpen(true)}
-                className="flex items-center gap-2 text-[12px] font-medium text-slate-500 hover:text-[#2563eb] transition-colors pl-1"
+                className="flex items-center gap-2 text-[12px] font-medium text-slate-500 hover:text-[#9d174d] transition-colors pl-1"
               >
                 <Plus size={14} />
                 <span>New View</span>
@@ -392,7 +392,7 @@ export default function DoubleSidebarLayout({ children }) {
       {/* 3. Right Content Panel */}
       <main className="flex-1 flex flex-col h-full overflow-hidden bg-white z-0">
         {/* Mobile Top Header */}
-        <div className="flex md:hidden items-center justify-between px-4 h-12 bg-[#2f5ad8] text-white shrink-0 border-b border-[#1f45be]/10 z-30 select-none">
+        <div className="flex md:hidden items-center justify-between px-4 h-12 bg-[#4c0519] text-white shrink-0 border-b border-[#881337]/10 z-30 select-none">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
@@ -402,10 +402,10 @@ export default function DoubleSidebarLayout({ children }) {
             </button>
             <div className="flex items-center gap-1.5 font-bold tracking-tight text-white cursor-pointer" onClick={() => navigate("/my-work")}>
               <div className="grid grid-cols-2 gap-0.5 w-4 h-4">
-                <div className="bg-[#b4c5ff] rounded-sm"></div>
+                <div className="bg-[#fbcfe8] rounded-sm"></div>
                 <div className="bg-[#10b981] rounded-sm"></div>
-                <div className="bg-[#b4c5ff] rounded-sm"></div>
-                <div className="bg-[#60a5fa] rounded-sm"></div>
+                <div className="bg-[#fbcfe8] rounded-sm"></div>
+                <div className="bg-[#fda4af] rounded-sm"></div>
               </div>
               <span className="text-[13px] font-bold">ProjectHub</span>
             </div>
@@ -447,7 +447,7 @@ export default function DoubleSidebarLayout({ children }) {
                 key={item.label}
                 onClick={() => navigate(item.path)}
                 className={`flex flex-col items-center justify-center gap-0.5 w-14 h-full cursor-pointer transition-all ${
-                  isSelected ? "text-[#2f5ad8]" : "text-slate-500 hover:text-slate-800"
+                  isSelected ? "text-[#9d174d]" : "text-slate-500 hover:text-slate-800"
                 }`}
               >
                 <Icon size={18} strokeWidth={isSelected ? 2.5 : 2} />
@@ -495,13 +495,13 @@ export default function DoubleSidebarLayout({ children }) {
           {/* Drawer content */}
           <div className="relative flex flex-col w-[280px] max-w-[85vw] h-full bg-white shadow-2xl z-10 animate-slide-in flex-shrink-0">
             {/* Drawer Header */}
-            <div className="flex items-center justify-between px-4 py-3 bg-[#2f5ad8] text-white shrink-0">
+            <div className="flex items-center justify-between px-4 py-3 bg-[#4c0519] text-white shrink-0">
               <div className="flex items-center gap-2 font-bold">
                 <div className="grid grid-cols-2 gap-0.5 w-4 h-4">
-                  <div className="bg-[#b4c5ff] rounded-sm"></div>
+                  <div className="bg-[#fbcfe8] rounded-sm"></div>
                   <div className="bg-[#10b981] rounded-sm"></div>
-                  <div className="bg-[#b4c5ff] rounded-sm"></div>
-                  <div className="bg-[#60a5fa] rounded-sm"></div>
+                  <div className="bg-[#fbcfe8] rounded-sm"></div>
+                  <div className="bg-[#fda4af] rounded-sm"></div>
                 </div>
                 <span className="text-sm">ProjectHub</span>
               </div>
@@ -540,7 +540,7 @@ export default function DoubleSidebarLayout({ children }) {
                       }}
                       className={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors cursor-pointer ${
                         isSelected
-                          ? "bg-[#eff6ff] text-[#2563eb] font-semibold"
+                          ? "bg-[#fff1f2] text-[#9d174d] font-semibold"
                           : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
                       }`}
                     >
@@ -558,11 +558,11 @@ export default function DoubleSidebarLayout({ children }) {
                   }}
                   className={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors cursor-pointer ${
                     pathname === "/projects"
-                      ? "bg-[#eff6ff] text-[#2563eb] font-semibold"
+                      ? "bg-[#fff1f2] text-[#9d174d] font-semibold"
                       : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
                   }`}
                 >
-                  <Briefcase size={15} className={pathname === "/projects" ? "text-[#2563eb]" : "text-slate-500"} />
+                  <Briefcase size={15} className={pathname === "/projects" ? "text-[#9d174d]" : "text-slate-500"} />
                   <span>Projects</span>
                 </div>
               </div>
@@ -589,7 +589,7 @@ export default function DoubleSidebarLayout({ children }) {
                     setIsNewViewModalOpen(true);
                     setIsMobileMenuOpen(false);
                   }}
-                  className="flex items-center gap-2 text-xs font-medium text-slate-500 hover:text-[#2563eb] transition-colors pl-2.5 py-1"
+                  className="flex items-center gap-2 text-xs font-medium text-slate-500 hover:text-[#9d174d] transition-colors pl-2.5 py-1"
                 >
                   <Plus size={13} />
                   <span>New View</span>
@@ -709,7 +709,7 @@ export default function DoubleSidebarLayout({ children }) {
 
             <button 
               onClick={() => { alert("Thank you for upgrading! Premium license activated."); setIsUpgradeModalOpen(false); }}
-              className="w-full py-2.5 bg-[#2563eb] text-white rounded-xl font-semibold text-sm hover:bg-[#1d4ed8]"
+              className="w-full py-2.5 bg-[#9d174d] text-white rounded-xl font-semibold text-sm hover:bg-[#be185d]"
             >
               Start 14-day free trial
             </button>
@@ -738,7 +738,7 @@ export default function DoubleSidebarLayout({ children }) {
                   value={newViewName}
                   onChange={(e) => setNewViewName(e.target.value)}
                   placeholder=""
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:border-[#2563eb] outline-none"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:border-[#9d174d] outline-none"
                 />
               </div>
 
@@ -752,7 +752,7 @@ export default function DoubleSidebarLayout({ children }) {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[#2563eb] text-white rounded-lg text-xs font-semibold hover:bg-[#1d4ed8]"
+                  className="px-4 py-2 bg-[#9d174d] text-white rounded-lg text-xs font-semibold hover:bg-[#be185d]"
                 >
                   Create
                 </button>
@@ -803,7 +803,7 @@ export default function DoubleSidebarLayout({ children }) {
                   value={quickTitle}
                   onChange={(e) => setQuickTitle(e.target.value)}
                   placeholder=""
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:border-[#2563eb] outline-none"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:border-[#9d174d] outline-none"
                 />
               </div>
 
@@ -817,7 +817,7 @@ export default function DoubleSidebarLayout({ children }) {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-[#2563eb] text-white rounded-lg text-xs font-semibold hover:bg-[#1d4ed8]"
+                  className="px-4 py-2 bg-[#9d174d] text-white rounded-lg text-xs font-semibold hover:bg-[#be185d]"
                 >
                   Save Add
                 </button>

@@ -350,7 +350,7 @@ export default function MyTasks() {
               <button className="flex items-center gap-1.5 px-2 py-1 bg-slate-100 text-slate-600 rounded text-[12px] font-semibold hover:bg-slate-200 transition-colors">
                 <span className={`w-2 h-2 rounded-full ${
                   statusFilter === "ALL" ? "bg-slate-400" :
-                  statusFilter === "TODO" ? "bg-blue-400" :
+                  statusFilter === "TODO" ? "bg-rose-400" :
                   statusFilter === "IN_PROGRESS" ? "bg-purple-400" : "bg-emerald-500"
                 }`}></span>
                 <span>Status: {statusFilter}</span>
@@ -470,7 +470,7 @@ export default function MyTasks() {
                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                               task.priority === "CRITICAL" ? "bg-red-100 text-red-700" :
                               task.priority === "HIGH" ? "bg-orange-100 text-orange-700" :
-                              task.priority === "MEDIUM" ? "bg-blue-100 text-blue-700" :
+                              task.priority === "MEDIUM" ? "bg-rose-100 text-rose-700" :
                               "bg-slate-100 text-slate-700"
                             }`}>
                               {task.priority}

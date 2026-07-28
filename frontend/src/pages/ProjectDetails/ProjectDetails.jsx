@@ -156,7 +156,7 @@ export default function ProjectDetails() {
 
   // Derive status details
   const statusDisplay = project.status === "ACTIVE" || project.status === "IN_PROGRESS" ? "On Track" : project.status === "COMPLETED" ? "Completed" : "Delayed";
-  const statusColor = project.status === "COMPLETED" ? "bg-green-500" : project.status === "DELAYED" ? "bg-orange-500" : "bg-blue-500";
+  const statusColor = project.status === "COMPLETED" ? "bg-green-500" : project.status === "DELAYED" ? "bg-orange-500" : "bg-rose-500";
 
   return (
     <DoubleSidebarLayout>
@@ -197,7 +197,7 @@ export default function ProjectDetails() {
                   ACTIVE PHASE: DEV
                 </span>
                 <div className="flex -space-x-2">
-                  <div className="w-8 h-8 rounded-full border-2 border-surface-main bg-blue-100 flex items-center justify-center text-[10px] font-bold text-primary">PH</div>
+                  <div className="w-8 h-8 rounded-full border-2 border-surface-main bg-rose-100 flex items-center justify-center text-[10px] font-bold text-primary">PH</div>
                 </div>
               </div>
             </div>
@@ -406,7 +406,7 @@ export default function ProjectDetails() {
                         Priority: <span className="font-semibold">{t.priority}</span>
                       </p>
                     </div>
-                    <span className="px-sm py-1 rounded-full font-label-md text-label-md font-semibold select-none bg-blue-50 text-blue-700 border border-blue-200">
+                    <span className="px-sm py-1 rounded-full font-label-md text-label-md font-semibold select-none bg-rose-50 text-rose-700 border border-rose-200">
                       {t.status}
                     </span>
                   </div>
@@ -436,7 +436,7 @@ export default function ProjectDetails() {
               </h3>
               <div className="relative border-l-2 border-border-subtle dark:border-outline-variant/30 ml-4 pl-lg space-y-xl py-xs">
                 <div className="relative">
-                  <div className="absolute -left-[35px] top-1.5 w-4 h-4 rounded-full border-2 border-surface-main bg-blue-500"></div>
+                  <div className="absolute -left-[35px] top-1.5 w-4 h-4 rounded-full border-2 border-surface-main bg-rose-500"></div>
                   <h4 className="font-title-md text-title-md text-text-heading dark:text-surface-main font-bold">Project Launch</h4>
                   <span className="text-body-sm text-on-surface-variant dark:text-surface-variant block mb-sm">Created At {new Date(project.created_at).toLocaleDateString()}</span>
                   <p className="font-body-md text-body-md text-text-body dark:text-surface-variant">Project initialization and repository boundaries initialized.</p>

@@ -19,7 +19,7 @@ export default function Calendar() {
   const [eventTitle, setEventTitle] = useState("");
   const [eventDate, setEventDate] = useState(new Date().toISOString().split("T")[0]);
   const [eventTime, setEventTime] = useState("12:00");
-  const [eventColor, setEventColor] = useState("blue");
+  const [eventColor, setEventColor] = useState("rose");
   const [eventDescription, setEventDescription] = useState("");
 
   // Modal State for View / Delete Event
@@ -109,7 +109,7 @@ export default function Calendar() {
       // Reset form
       setEventTitle("");
       setEventDescription("");
-      setEventColor("blue");
+      setEventColor("rose");
       setIsAddEventOpen(false);
     } catch (err) {
       alert(err.message || "Failed to create calendar event.");
@@ -313,7 +313,7 @@ export default function Calendar() {
 
                         <div className="flex-1 flex flex-col gap-xs overflow-hidden select-none">
                           {dayEvents.map((evt) => {
-                            let colorClasses = "bg-blue-50 text-blue-700 border-blue-200";
+                            let colorClasses = "bg-rose-50 text-rose-700 border-rose-200";
                             if (evt.color === "green") {
                               colorClasses = "bg-emerald-50 text-emerald-700 border-emerald-200";
                             } else if (evt.color === "yellow") {
@@ -445,7 +445,7 @@ export default function Calendar() {
                   value={eventColor}
                   onChange={(e) => setEventColor(e.target.value)}
                 >
-                  <option value="blue">Blue (Planning)</option>
+                  <option value="rose">Rose (Planning)</option>
                   <option value="green">Green (Kickoff / Sync)</option>
                   <option value="yellow">Yellow (Alert / Action Required)</option>
                   <option value="red">Red (Critical / Deadline)</option>
