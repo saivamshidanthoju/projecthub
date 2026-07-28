@@ -21,7 +21,8 @@ import {
   ArrowRight,
   LogOut,
   Settings as SettingsIcon,
-  CheckCircle
+  CheckCircle,
+  Menu
 } from "lucide-react";
 
 // Helper component for narrow sidebar icons
@@ -67,6 +68,7 @@ export default function DoubleSidebarLayout({ children }) {
   const [isNewViewModalOpen, setIsNewViewModalOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isRecentDropdownOpen, setIsRecentDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Form states
   const [newViewName, setNewViewName] = useState("");
@@ -389,8 +391,250 @@ export default function DoubleSidebarLayout({ children }) {
 
       {/* 3. Right Content Panel */}
       <main className="flex-1 flex flex-col h-full overflow-hidden bg-white z-0">
-        {children}
+        {/* Mobile Top Header */}
+        <div className="flex md:hidden items-center justify-between px-4 h-12 bg-[#2f5ad8] text-white shrink-0 border-b border-[#1f45be]/10 z-30 select-none">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="p-1 hover:bg-white/10 rounded-lg cursor-pointer transition-colors"
+            >
+              <Menu size={20} />
+            </button>
+            <div className="flex items-center gap-1.5 font-bold tracking-tight text-white cursor-pointer" onClick={() => navigate("/my-work")}>
+              <div className="grid grid-cols-2 gap-0.5 w-4 h-4">
+                <div className="bg-[#b4c5ff] rounded-sm"></div>
+                <div className="bg-[#10b981] rounded-sm"></div>
+                <div className="bg-[#b4c5ff] rounded-sm"></div>
+                <div className="bg-[#60a5fa] rounded-sm"></div>
+              </div>
+              <span className="text-[13px] font-bold">ProjectHub</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsSearchModalOpen(true)}
+              className="p-1.5 hover:bg-white/10 rounded-lg cursor-pointer transition-colors"
+            >
+              <Search size={16} />
+            </button>
+            <div
+              onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+              className="w-7 h-7 rounded-full bg-fuchsia-600 text-white font-semibold flex items-center justify-center text-xs border border-white/20 cursor-pointer hover:brightness-110"
+            >
+              {initials}
+            </div>
+          </div>
+        </div>
+
+        {/* Inner Content Area */}
+        <div className="flex-1 overflow-hidden relative flex flex-col">
+          {children}
+        </div>
+
+        {/* Mobile Bottom Navigation Bar */}
+        <div className="flex md:hidden items-center justify-around h-14 bg-white border-t border-slate-200 shrink-0 z-30 select-none px-2 shadow-lg">
+          {[
+            { label: "Work", path: "/my-work", icon: Home },
+            { label: "Tasks", path: "/my-tasks", icon: ListChecks },
+            { label: "Projects", path: "/projects", icon: Briefcase },
+            { label: "Notepad", path: "/notepad", icon: FileText },
+          ].map((item) => {
+            const isSelected = pathname === item.path;
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.label}
+                onClick={() => navigate(item.path)}
+                className={`flex flex-col items-center justify-center gap-0.5 w-14 h-full cursor-pointer transition-all ${
+                  isSelected ? "text-[#2f5ad8]" : "text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <Icon size={18} strokeWidth={isSelected ? 2.5 : 2} />
+                <span className="text-[10px] font-medium leading-none">{item.label}</span>
+              </button>
+            );
+          })}
+          <button
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="flex flex-col items-center justify-center gap-0.5 w-14 h-full cursor-pointer text-slate-500 hover:text-slate-800 transition-all"
+          >
+            <Menu size={18} />
+            <span className="text-[10px] font-medium leading-none">Menu</span>
+          </button>
+        </div>
       </main>
+
+      {/* Mobile Menu Side Drawer */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-[9999] flex md:hidden">
+          {/* Style injection for smooth animations */}
+          <style>{`
+            @keyframes slideIn {
+              from { transform: translateX(-100%); }
+              to { transform: translateX(0); }
+            }
+            @keyframes fadeInBg {
+              from { opacity: 0; }
+              to { opacity: 0.4; }
+            }
+            .animate-slide-in {
+              animation: slideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            }
+            .animate-fade-in-bg {
+              animation: fadeInBg 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            }
+          `}</style>
+
+          {/* Backdrop */}
+          <div
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="fixed inset-0 bg-slate-900 animate-fade-in-bg transition-opacity duration-300"
+          />
+
+          {/* Drawer content */}
+          <div className="relative flex flex-col w-[280px] max-w-[85vw] h-full bg-white shadow-2xl z-10 animate-slide-in flex-shrink-0">
+            {/* Drawer Header */}
+            <div className="flex items-center justify-between px-4 py-3 bg-[#2f5ad8] text-white shrink-0">
+              <div className="flex items-center gap-2 font-bold">
+                <div className="grid grid-cols-2 gap-0.5 w-4 h-4">
+                  <div className="bg-[#b4c5ff] rounded-sm"></div>
+                  <div className="bg-[#10b981] rounded-sm"></div>
+                  <div className="bg-[#b4c5ff] rounded-sm"></div>
+                  <div className="bg-[#60a5fa] rounded-sm"></div>
+                </div>
+                <span className="text-sm">ProjectHub</span>
+              </div>
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-1 hover:bg-white/10 rounded-lg cursor-pointer text-white"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Profile banner inside drawer */}
+            <div className="p-4 border-b border-slate-100 bg-slate-50 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-fuchsia-600 text-white font-semibold flex items-center justify-center text-sm border border-white/20">
+                {initials}
+              </div>
+              <div className="flex-1 min-w-0 text-left">
+                <p className="text-xs font-bold text-slate-800 truncate">{fullName}</p>
+                <p className="text-[10px] text-slate-400 truncate">{user?.email || "user@projecthub.test"}</p>
+              </div>
+            </div>
+
+            {/* Scrollable menu items */}
+            <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-4 text-left">
+              {/* Main navigation */}
+              <div className="flex flex-col gap-1">
+                <span className="px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Navigation</span>
+                {homeItems.map((item) => {
+                  const isSelected = pathname === item.path;
+                  return (
+                    <div
+                      key={item.label}
+                      onClick={() => {
+                        navigate(item.path);
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors cursor-pointer ${
+                        isSelected
+                          ? "bg-[#eff6ff] text-[#2563eb] font-semibold"
+                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+                      }`}
+                    >
+                      {item.icon(isSelected)}
+                      <span>{item.label}</span>
+                    </div>
+                  );
+                })}
+                
+                {/* Additional main navigation links */}
+                <div
+                  onClick={() => {
+                    navigate("/projects");
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`flex items-center gap-3 px-3 py-2 text-xs rounded-lg transition-colors cursor-pointer ${
+                    pathname === "/projects"
+                      ? "bg-[#eff6ff] text-[#2563eb] font-semibold"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+                  }`}
+                >
+                  <Briefcase size={15} className={pathname === "/projects" ? "text-[#2563eb]" : "text-slate-500"} />
+                  <span>Projects</span>
+                </div>
+              </div>
+
+              {/* Views section */}
+              <div className="flex flex-col gap-1.5">
+                <span className="px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Views</span>
+                {customViews.map(view => (
+                  <div 
+                    key={view.id}
+                    className="flex items-center justify-between text-xs font-medium text-slate-600 hover:bg-slate-100 py-1.5 px-2.5 rounded group cursor-pointer"
+                  >
+                    <span className="truncate"># {view.name}</span>
+                    <button 
+                      onClick={(e) => handleDeleteView(view.id, e)}
+                      className="text-slate-400 hover:text-red-500 text-xs px-1"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+                <button 
+                  onClick={() => {
+                    setIsNewViewModalOpen(true);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="flex items-center gap-2 text-xs font-medium text-slate-500 hover:text-[#2563eb] transition-colors pl-2.5 py-1"
+                >
+                  <Plus size={13} />
+                  <span>New View</span>
+                </button>
+              </div>
+
+              {/* Actions section */}
+              <div className="flex flex-col gap-1">
+                <span className="px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Actions</span>
+                <button 
+                  onClick={() => {
+                    setIsQuickAddModalOpen(true);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full px-3 py-2 hover:bg-slate-50 flex items-center gap-2.5 text-xs text-slate-600 text-left rounded-lg cursor-pointer"
+                >
+                  <Plus size={14} className="text-slate-500" />
+                  <span>Quick Add</span>
+                </button>
+                <button 
+                  onClick={() => {
+                    setIsUpgradeModalOpen(true);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full px-3 py-2 hover:bg-slate-50 flex items-center gap-2.5 text-xs text-slate-600 text-left rounded-lg cursor-pointer"
+                >
+                  <Diamond size={14} className="text-slate-500" />
+                  <span>Upgrade Premium</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Logout button at bottom of drawer */}
+            <div className="p-3 border-t border-slate-100 shrink-0">
+              <button 
+                onClick={() => { logout(); navigate("/login"); }}
+                className="w-full px-3 py-2.5 text-red-600 hover:bg-red-50 flex items-center gap-2.5 text-xs font-semibold rounded-lg text-left cursor-pointer border border-red-100/50"
+              >
+                <LogOut size={14} />
+                <span>Log Out</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modals Implementation */}
       

@@ -247,12 +247,12 @@ export default function MyTasks() {
       <div className="flex flex-col h-full w-full bg-white relative text-left">
         
         {/* Header matching Image 4 */}
-        <header className="flex items-center h-12 px-6 border-b border-[#eef1f6] shrink-0 select-none justify-between">
-          <div className="flex items-center gap-6">
-            <h1 className="text-[14px] font-bold text-[#0f172a]">My Tasks</h1>
+        <header className="flex items-center h-12 px-4 md:px-6 border-b border-[#eef1f6] shrink-0 select-none justify-between overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-4 md:gap-6 min-w-0">
+            <h1 className="text-[14px] font-bold text-[#0f172a] shrink-0">My Tasks</h1>
             
             {/* Tabs */}
-            <div className="flex items-center gap-4 h-12">
+            <div className="flex items-center gap-3 md:gap-4 h-12 overflow-x-auto no-scrollbar whitespace-nowrap shrink-0">
               {["Action Required", "Assigned To Me", "High Priority"].map((tab) => (
                 <button 
                   key={tab}
@@ -268,10 +268,10 @@ export default function MyTasks() {
               ))}
             </div>
             
-            <div className="w-[1px] h-4 bg-slate-200"></div>
+            <div className="w-[1px] h-4 bg-slate-200 shrink-0"></div>
 
             {/* Quick Actions in Header */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               <button 
                 onClick={() => setShowAddForm(true)}
                 className="p-1 hover:bg-slate-100 rounded text-slate-500 hover:text-[#2563eb]"
@@ -287,8 +287,8 @@ export default function MyTasks() {
         </header>
 
         {/* Toolbar matching Image 4 */}
-        <div className="flex items-center justify-between px-6 py-2 border-b border-[#eef1f6] bg-slate-50/40 select-none shrink-0">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between px-4 md:px-6 py-2 border-b border-[#eef1f6] bg-slate-50/40 select-none shrink-0 overflow-x-auto no-scrollbar whitespace-nowrap">
+          <div className="flex items-center gap-3 shrink-0">
             <button 
               onClick={toggleSidebarFullScreen}
               className="p-1 text-slate-400 hover:text-slate-600 rounded hover:bg-slate-100"
@@ -366,7 +366,7 @@ export default function MyTasks() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0">
             <button 
               onClick={() => setShowPrefPanel(!showPrefPanel)}
               className="flex items-center gap-1 text-[12px] font-semibold text-slate-500 hover:text-slate-700"
@@ -411,31 +411,31 @@ export default function MyTasks() {
           
           {viewLayout === "table" ? (
             // 1. Table Checklist layout (Image 4 style)
-            <div className="flex flex-col h-full overflow-hidden">
-              {/* Header */}
-              <div className="grid grid-cols-12 px-6 py-2.5 border-b border-[#eef1f6] bg-slate-50/50 text-[11px] font-bold text-slate-400 uppercase tracking-wider select-none shrink-0">
-                <div className="col-span-1 flex items-center justify-start">
-                  <input type="checkbox" className="rounded border-slate-300 text-[#2563eb] w-3.5 h-3.5 cursor-pointer" />
-                </div>
-                <div className="col-span-4">Title</div>
-                <div className="col-span-2">Action Required</div>
-                <div className="col-span-2">Schedule</div>
-                <div className="col-span-2">Priority</div>
-                <div className="col-span-1">Status</div>
-                <div className="col-span-1 flex justify-end pr-1">
-                  <Settings size={13} className="text-slate-400 cursor-pointer hover:text-slate-600" />
-                </div>
-              </div>
-
-              {/* Rows */}
-              <div className="flex-1 overflow-y-auto">
-                {filteredTasks.length === 0 ? (
-                  <div className="px-6 py-8 text-left">
-                    <span className="text-[13px] text-slate-400 font-medium">No tasks yet</span>
+            <div className="flex-1 overflow-auto bg-white">
+              <div className="min-w-[768px] flex flex-col h-full">
+                {/* Header */}
+                <div className="grid grid-cols-12 px-6 py-2.5 border-b border-[#eef1f6] bg-slate-50/50 text-[11px] font-bold text-slate-400 uppercase tracking-wider select-none shrink-0">
+                  <div className="col-span-1 flex items-center justify-start">
+                    <input type="checkbox" className="rounded border-slate-300 text-[#2563eb] w-3.5 h-3.5 cursor-pointer" />
                   </div>
-                ) : (
-                  <div className="divide-y divide-[#eef1f6]">
-                    {filteredTasks.map((task) => {
+                  <div className="col-span-4">Title</div>
+                  <div className="col-span-2">Action Required</div>
+                  <div className="col-span-2">Schedule</div>
+                  <div className="col-span-2">Priority</div>
+                  <div className="col-span-1">Status</div>
+                  <div className="col-span-1 flex justify-end pr-1">
+                    <Settings size={13} className="text-slate-400 cursor-pointer hover:text-slate-600" />
+                  </div>
+                </div>
+
+                {/* Rows container */}
+                <div className="flex-1 overflow-y-auto divide-y divide-[#eef1f6]">
+                  {filteredTasks.length === 0 ? (
+                    <div className="px-6 py-8 text-left">
+                      <span className="text-[13px] text-slate-400 font-medium">No tasks yet</span>
+                    </div>
+                  ) : (
+                    filteredTasks.map((task) => {
                       const isCompleted = task.status === "DONE" || task.status === "completed";
                       const scheduleLabel = task.due_date 
                         ? new Date(task.due_date).toLocaleDateString([], { month: "short", day: "numeric" }) 
@@ -491,9 +491,9 @@ export default function MyTasks() {
                           </div>
                         </div>
                       );
-                    })}
-                  </div>
-                )}
+                    })
+                  )}
+                </div>
               </div>
             </div>
           ) : (
