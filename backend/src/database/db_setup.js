@@ -56,6 +56,66 @@ async function checkAndSetupDatabase() {
         // Run migrations explicitly
         console.log("Running migrations...");
         await targetPool.query(`
+            ALTER TABLE organizations
+            ADD COLUMN IF NOT EXISTS company_name VARCHAR(100)
+        `);
+
+        await targetPool.query(`
+            ALTER TABLE organizations
+            ADD COLUMN IF NOT EXISTS organization_slug VARCHAR(100)
+        `);
+
+        await targetPool.query(`
+            ALTER TABLE organizations
+            ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        `);
+
+        await targetPool.query(`
+            UPDATE organizations
+            SET organization_slug = 'org-' || organization_id
+            WHERE organization_slug IS NULL OR organization_slug = ''
+        `);
+
+        await targetPool.query(`
+            DO $$
+            BEGIN
+                IF EXISTS (
+                    SELECT 1
+                    FROM information_schema.columns
+                    WHERE table_name = 'organizations'
+                        AND column_name = 'organization_name'
+                ) THEN
+                    UPDATE organizations
+                    SET company_name = COALESCE(NULLIF(company_name, ''), NULLIF(organization_name, ''), organization_slug)
+                    WHERE company_name IS NULL OR company_name = '';
+
+                    UPDATE organizations
+                    SET organization_name = COALESCE(NULLIF(organization_name, ''), company_name, organization_slug)
+                    WHERE organization_name IS NULL OR organization_name = '';
+
+                    ALTER TABLE organizations
+                    ALTER COLUMN organization_name DROP NOT NULL;
+                END IF;
+            END $$;
+        `);
+
+        await targetPool.query(`
+            UPDATE organizations
+            SET company_name = organization_slug
+            WHERE company_name IS NULL OR company_name = ''
+        `);
+
+        await targetPool.query(`
+            ALTER TABLE organizations
+            ALTER COLUMN company_name SET NOT NULL,
+            ALTER COLUMN organization_slug SET NOT NULL
+        `);
+
+        await targetPool.query(`
+            CREATE UNIQUE INDEX IF NOT EXISTS uq_organizations_organization_slug
+            ON organizations(organization_slug)
+        `);
+        await targetPool.query(`
             ALTER TABLE projects 
             ADD COLUMN IF NOT EXISTS department VARCHAR(100) DEFAULT 'General Operations'
         `);
@@ -76,7 +136,7 @@ async function checkAndSetupDatabase() {
         await targetPool.query(`
             INSERT INTO organizations (organization_id, company_name, organization_slug) 
             VALUES (1, 'ProjectHub', 'projecthub')
-            ON CONFLICT (organization_slug) DO NOTHING
+            ON CONFLICT (organization_id) DO NOTHING
         `);
 
         // Seeding Default Demo Users
@@ -90,10 +150,17 @@ async function checkAndSetupDatabase() {
 
         for (const user of demoUsers) {
             await targetPool.query(`
+                WITH updated AS (
+                    UPDATE users
+                    SET first_name = $3, last_name = $4, role_id = $2, password_hash = $6
+                    WHERE email = $5
+                    RETURNING user_id
+                )
                 INSERT INTO users (user_id, organization_id, role_id, first_name, last_name, email, password_hash)
-                VALUES ($1, 1, $2, $3, $4, $5, $6)
-                ON CONFLICT (email) DO UPDATE 
-                SET first_name = $3, last_name = $4, role_id = $2, password_hash = $6
+                SELECT $1, 1, $2, $3, $4, $5, $6
+                WHERE NOT EXISTS (SELECT 1 FROM updated)
+                    AND NOT EXISTS (SELECT 1 FROM users WHERE user_id = $1)
+                ON CONFLICT DO NOTHING
             `, [user.id, user.role, user.first, user.last, user.email, passwordHash]);
         }
 

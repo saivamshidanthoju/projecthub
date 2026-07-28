@@ -67,9 +67,9 @@ export default function Register() {
     <div className="min-h-screen w-full bg-surface-main text-on-surface flex flex-col md:grid md:grid-cols-2">
       <div 
         className="hidden md:flex flex-col justify-between p-xl bg-cover bg-center text-white relative overflow-hidden min-h-screen"
-        style={{ backgroundImage: "url('/register_left_bg.png')" }}
+        style={{ backgroundImage: "url('/landing_collab.jpg')" }}
       >
-        <div className="absolute inset-0 bg-black/45 z-0"></div>
+        <div className="absolute inset-0 bg-black/55 z-0"></div>
 
         <div className="z-10">
           <div className="flex items-center gap-sm mb-xl">
