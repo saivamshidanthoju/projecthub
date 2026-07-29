@@ -212,14 +212,9 @@ export default function DoubleSidebarLayout({ children }) {
             {/* Logo Container */}
             <div 
               onClick={() => navigate("/my-work")}
-              className="w-10 h-10 bg-[#881337] rounded-xl flex items-center justify-center text-white mb-2 cursor-pointer shadow-inner"
+              className="w-10 h-10 flex items-center justify-center mb-2 cursor-pointer"
             >
-              <div className="grid grid-cols-2 gap-0.5 w-5 h-5">
-                <div className="bg-[#fbcfe8] rounded-sm"></div>
-                <div className="bg-[#10b981] rounded-sm"></div>
-                <div className="bg-[#fbcfe8] rounded-sm"></div>
-                <div className="bg-[#fda4af] rounded-sm"></div>
-              </div>
+              <img src="/logo.svg" className="w-8 h-8 object-contain" alt="ProjectHub Logo" />
             </div>
 
             {/* Navigation Icons */}
@@ -401,12 +396,7 @@ export default function DoubleSidebarLayout({ children }) {
               <Menu size={20} />
             </button>
             <div className="flex items-center gap-1.5 font-bold tracking-tight text-white cursor-pointer" onClick={() => navigate("/my-work")}>
-              <div className="grid grid-cols-2 gap-0.5 w-4 h-4">
-                <div className="bg-[#fbcfe8] rounded-sm"></div>
-                <div className="bg-[#10b981] rounded-sm"></div>
-                <div className="bg-[#fbcfe8] rounded-sm"></div>
-                <div className="bg-[#fda4af] rounded-sm"></div>
-              </div>
+              <img src="/logo.svg" className="w-8 h-8 object-contain" alt="ProjectHub Logo" />
               <span className="text-[13px] font-bold">ProjectHub</span>
             </div>
           </div>
@@ -497,12 +487,7 @@ export default function DoubleSidebarLayout({ children }) {
             {/* Drawer Header */}
             <div className="flex items-center justify-between px-4 py-3 bg-[#4c0519] text-white shrink-0">
               <div className="flex items-center gap-2 font-bold">
-                <div className="grid grid-cols-2 gap-0.5 w-4 h-4">
-                  <div className="bg-[#fbcfe8] rounded-sm"></div>
-                  <div className="bg-[#10b981] rounded-sm"></div>
-                  <div className="bg-[#fbcfe8] rounded-sm"></div>
-                  <div className="bg-[#fda4af] rounded-sm"></div>
-                </div>
+                <img src="/logo.svg" className="w-8 h-8 object-contain" alt="ProjectHub Logo" />
                 <span className="text-sm">ProjectHub</span>
               </div>
               <button

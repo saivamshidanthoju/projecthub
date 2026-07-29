@@ -28,11 +28,7 @@ export default function Sidebar() {
     <>
       <aside className="hidden md:flex flex-col h-full py-lg px-md gap-base bg-white border-r border-border-subtle w-64 h-screen fixed left-0 top-0 z-50">
         <div className="flex items-center gap-sm mb-lg px-xs">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white shrink-0">
-            <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-              hub
-            </span>
-          </div>
+          <img src="/logo.svg" className="w-8 h-8 object-contain" alt="ProjectHub Logo" />
           <div>
             <h1 className="font-title-md text-title-md font-bold text-primary">ProjectHub</h1>
             <p className="font-label-md text-label-md text-on-surface-variant leading-none uppercase tracking-widest text-[10px]">

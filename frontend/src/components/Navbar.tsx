@@ -16,9 +16,10 @@ export default function Navbar() {
           to="/"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="font-title-lg text-title-lg text-primary dark:text-inverse-primary font-bold tracking-tight select-none"
+          className="flex items-center gap-2 font-title-lg text-title-lg text-primary dark:text-inverse-primary font-bold tracking-tight select-none"
         >
-          ProjectHub
+          <img src="/logo.svg" className="w-9 h-9 object-contain" alt="ProjectHub Logo" />
+          <span>ProjectHub</span>
         </MotionLink>
 
         <nav className="hidden md:flex items-center gap-lg">

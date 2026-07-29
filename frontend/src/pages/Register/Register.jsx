@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { ROLES } from "../../lib/rbac";
@@ -9,39 +9,30 @@ export default function Register() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-  const orgIdTouched = useRef(false);
   const navigate = useNavigate();
   const { register } = useAuth();
 
   const handleCompanyNameChange = (e) => {
     const value = e.target.value;
     setCompanyName(value);
-
-    if (!orgIdTouched.current) {
-      setOrgId(
-        value
-          .toLowerCase()
-          .replace(/[^a-z0-9]/g, "-")
-          .replace(/-+/g, "-")
-          .replace(/^-|-$/g, "")
-      );
-    }
+    setOrgId(
+      value
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "")
+    );
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
 
     setIsSubmitting(true);
 
@@ -72,10 +63,8 @@ export default function Register() {
         <div className="absolute inset-0 bg-black/55 z-0"></div>
 
         <div className="z-10">
-          <div className="flex items-center gap-sm mb-xl">
-            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-              <span className="material-symbols-outlined text-primary text-title-lg">hub</span>
-            </div>
+          <div className="flex flex-col items-start gap-3 mb-xl">
+            <img src="/logo.svg" className="w-[72px] h-[72px] object-contain" alt="ProjectHub Logo" />
             <span className="font-title-lg text-title-lg font-bold tracking-tight text-white">ProjectHub</span>
           </div>
           <h1 className="font-display-lg text-display-lg leading-tight mb-md text-white font-bold">
@@ -86,11 +75,7 @@ export default function Register() {
           </p>
         </div>
 
-        <div className="z-10 mt-auto bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-md">
-          <p className="font-body-sm text-body-sm italic text-white/90">
-            ProjectHub keeps project access, upload permissions, and destructive actions tied to role.
-          </p>
-        </div>
+
       </div>
 
       <div className="flex items-center justify-center p-lg md:p-xl bg-surface-main">
@@ -115,45 +100,20 @@ export default function Register() {
           )}
 
           <form className="space-y-base" id="registerForm" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-md mb-md">
-              <div className="flex flex-col gap-xs">
-                <label className="font-label-md text-label-md text-on-surface-variant" htmlFor="company_name">
-                  Company Name
-                </label>
-                <input
-                  className="w-full h-11 px-md rounded border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md text-body-md bg-surface"
-                  id="company_name"
-                  name="company_name"
-                  placeholder=""
-                  type="text"
-                  value={companyName}
-                  onChange={handleCompanyNameChange}
-                  required
-                />
-              </div>
-              <div className="flex flex-col gap-xs">
-                <label className="font-label-md text-label-md text-on-surface-variant" htmlFor="org_id">
-                  Organization ID
-                </label>
-                <div className="relative">
-                  <input
-                    className="w-full h-11 pl-md pr-[70px] rounded border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md text-body-md bg-surface"
-                    id="org_id"
-                    name="org_id"
-                    placeholder=""
-                    type="text"
-                    value={orgId}
-                    onChange={(e) => setOrgId(e.target.value)}
-                    onFocus={() => {
-                      orgIdTouched.current = true;
-                    }}
-                    required
-                  />
-                  <span className="absolute right-3 top-3 text-on-surface-variant/50 font-label-md text-label-md select-none pointer-events-none">
-                    .phub.io
-                  </span>
-                </div>
-              </div>
+            <div className="flex flex-col gap-xs mb-md">
+              <label className="font-label-md text-label-md text-on-surface-variant" htmlFor="company_name">
+                Company Name
+              </label>
+              <input
+                className="w-full h-11 px-md rounded border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md text-body-md bg-surface"
+                id="company_name"
+                name="company_name"
+                placeholder=""
+                type="text"
+                value={companyName}
+                onChange={handleCompanyNameChange}
+                required
+              />
             </div>
 
             <div className="flex flex-col gap-xs mb-md">
@@ -188,39 +148,31 @@ export default function Register() {
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-md mb-lg">
-              <div className="flex flex-col gap-xs">
-                <label className="font-label-md text-label-md text-on-surface-variant" htmlFor="password">
-                  Password
-                </label>
+            <div className="flex flex-col gap-xs mb-lg">
+              <label className="font-label-md text-label-md text-on-surface-variant" htmlFor="password">
+                Password
+              </label>
+              <div className="relative">
                 <input
-                  className="w-full h-11 px-md rounded border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md text-body-md bg-surface"
+                  className="w-full h-11 pl-md pr-10 rounded border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md text-body-md bg-surface"
                   id="password"
                   name="password"
                   placeholder=""
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   minLength={6}
                   required
                 />
-              </div>
-
-              <div className="flex flex-col gap-xs">
-                <label className="font-label-md text-label-md text-on-surface-variant" htmlFor="confirm_password">
-                  Confirm Password
-                </label>
-                <input
-                  className="w-full h-11 px-md rounded border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md text-body-md bg-surface"
-                  id="confirm_password"
-                  name="confirm_password"
-                  placeholder="Confirm password"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  minLength={6}
-                  required
-                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(prev => !prev)}
+                  className="absolute right-3 top-3.5 text-on-surface-variant/50 hover:text-primary transition-colors cursor-pointer select-none"
+                >
+                  <span className="material-symbols-outlined text-[12px]">
+                    {showPassword ? "visibility_off" : "visibility"}
+                  </span>
+                </button>
               </div>
             </div>
 

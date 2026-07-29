@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getRoleLabel, isAllowedRole } from "../lib/rbac";
+import { motion } from "framer-motion";
 
 export default function ProtectedRoute({ children, roles }) {
   const location = useLocation();
@@ -8,8 +9,23 @@ export default function ProtectedRoute({ children, roles }) {
 
   if (isBootstrapping) {
     return (
-      <div className="min-h-screen w-full bg-white text-on-surface flex items-center justify-center">
-        <span className="font-body-md text-body-md text-on-surface-variant">Loading workspace...</span>
+      <div className="min-h-screen w-full bg-white text-on-surface flex flex-col items-center justify-center gap-4">
+        <motion.img
+          src="/logo.svg"
+          alt="ProjectHub Logo"
+          initial={{ opacity: 0, scale: 0.85 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="w-16 h-16 object-contain"
+        />
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.1, duration: 0.3 }}
+          className="font-body-md text-body-md text-on-surface-variant"
+        >
+          Loading workspace...
+        </motion.span>
       </div>
     );
   }

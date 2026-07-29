@@ -2,14 +2,9 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
-const demoAccounts = [
-  { label: "Admin", email: "admin@projecthub.test" },
-  { label: "Manager", email: "manager@projecthub.test" },
-  { label: "Member", email: "member@projecthub.test" },
-];
 
 export default function Login() {
-  const [orgId, setOrgId] = useState("projecthub");
+  const orgId = "projecthub";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -22,13 +17,6 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const redirectTo = location.state?.from?.pathname || "/dashboard";
-
-  const fillDemoAccount = (accountEmail) => {
-    setOrgId("projecthub");
-    setEmail(accountEmail);
-    setPassword("password123");
-    setError("");
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -60,10 +48,8 @@ export default function Login() {
         <div className="absolute inset-0 bg-black/55 z-0"></div>
 
         <div className="z-10">
-          <div className="flex items-center gap-sm mb-xl">
-            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-              <span className="material-symbols-outlined text-primary text-title-lg">hub</span>
-            </div>
+          <div className="flex flex-col items-start gap-3 mb-xl">
+            <img src="/logo.svg" className="w-[72px] h-[72px] object-contain" alt="ProjectHub Logo" />
             <span className="font-title-lg text-title-lg font-bold tracking-tight text-white">ProjectHub</span>
           </div>
           <h1 className="font-display-lg text-display-lg leading-tight mb-md text-white font-bold">
@@ -74,23 +60,7 @@ export default function Login() {
           </p>
         </div>
 
-        <div className="z-10 mt-auto bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-md">
-          <p className="font-label-md text-label-md uppercase tracking-widest text-white/80 mb-sm">
-            Demo access
-          </p>
-          <div className="grid grid-cols-3 gap-sm">
-            {demoAccounts.map((account) => (
-              <button
-                key={account.email}
-                type="button"
-                onClick={() => fillDemoAccount(account.email)}
-                className="h-9 rounded-lg bg-white/95 text-primary font-button-text text-button-text hover:bg-white active:scale-95 transition-all cursor-pointer"
-              >
-                {account.label}
-              </button>
-            ))}
-          </div>
-        </div>
+
       </div>
 
       <div className="flex items-center justify-center p-lg md:p-xl bg-surface-main">
@@ -115,26 +85,7 @@ export default function Login() {
           )}
 
           <form className="space-y-base" onSubmit={handleSubmit}>
-            <div className="flex flex-col gap-xs mb-md">
-              <label className="font-label-md text-label-md text-on-surface-variant" htmlFor="org_id">
-                Organization ID
-              </label>
-              <div className="relative">
-                <input
-                  className="w-full h-11 pl-md pr-[70px] rounded border border-border-subtle focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md text-body-md bg-surface"
-                  id="org_id"
-                  name="org_id"
-                  placeholder=""
-                  type="text"
-                  value={orgId}
-                  onChange={(e) => setOrgId(e.target.value)}
-                  required
-                />
-                <span className="absolute right-3 top-3 text-on-surface-variant/50 font-label-md text-label-md select-none pointer-events-none">
-                  .phub.io
-                </span>
-              </div>
-            </div>
+
 
             <div className="flex flex-col gap-xs mb-md">
               <label className="font-label-md text-label-md text-on-surface-variant" htmlFor="email">
@@ -174,7 +125,7 @@ export default function Login() {
                   onClick={() => setShowPassword(prev => !prev)}
                   className="absolute right-3 top-3.5 text-on-surface-variant/50 hover:text-primary transition-colors cursor-pointer select-none"
                 >
-                  <span className="material-symbols-outlined text-[18px]">
+                  <span className="material-symbols-outlined text-[12px]">
                     {showPassword ? "visibility_off" : "visibility"}
                   </span>
                 </button>
@@ -225,18 +176,7 @@ export default function Login() {
               </Link>
             </p>
 
-            <div className="grid grid-cols-3 gap-sm w-full md:hidden">
-              {demoAccounts.map((account) => (
-                <button
-                  key={account.email}
-                  type="button"
-                  onClick={() => fillDemoAccount(account.email)}
-                  className="h-10 rounded-lg border border-border-subtle bg-white text-primary font-button-text text-button-text hover:bg-surface-sunken active:scale-95 transition-all"
-                >
-                  {account.label}
-                </button>
-              ))}
-            </div>
+
           </div>
         </div>
       </div>
