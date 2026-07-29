@@ -58,6 +58,16 @@ export function AuthProvider({ children }) {
     setSession(null);
   }, []);
 
+  const updateSessionUser = useCallback((updatedUser) => {
+    setSession(prev => {
+      if (!prev) return null;
+      const nextSession = { ...prev, user: { ...prev.user, ...updatedUser } };
+      const isLocal = localStorage.getItem(SESSION_STORAGE_KEY) !== null;
+      persistSession(nextSession, isLocal);
+      return nextSession;
+    });
+  }, []);
+
   const value = useMemo(
     () => ({
       isBootstrapping,
@@ -68,8 +78,9 @@ export function AuthProvider({ children }) {
       login,
       register,
       logout,
+      updateSessionUser,
     }),
-    [isBootstrapping, login, logout, register, session]
+    [isBootstrapping, login, logout, register, session, updateSessionUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

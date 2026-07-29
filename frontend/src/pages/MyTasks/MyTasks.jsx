@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import DoubleSidebarLayout from "../../layouts/DoubleSidebarLayout";
 import { useAuth } from "../../context/AuthContext";
-import { tasksApi } from "../../lib/api";
+import { tasksApi, projectsApi } from "../../lib/api";
 import { 
   Maximize2, 
   Search, 
@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 
 export default function MyTasks() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   
   // Tasks list loaded from database + localStorage sync
   const [tasks, setTasks] = useState([]);
@@ -51,26 +51,9 @@ export default function MyTasks() {
     if (!token) return;
     setLoading(true);
     try {
-      // Pull tasks from DB
       const data = await tasksApi.list(token);
-      
-      // Pull tasks from localStorage (quick add tasks)
-      const localSaved = localStorage.getItem("projecthub.tasks");
-      const localTasks = localSaved ? JSON.parse(localSaved) : [];
-      
-      // Merge
-      const allTasks = [...localTasks, ...(data || []).filter(t => t.title !== "Project Workspace Chat")];
-      
-      // Deduplicate by ID
-      const seen = new Set();
-      const uniqueTasks = allTasks.filter(item => {
-        const id = item.id || item.task_id;
-        if (seen.has(id)) return false;
-        seen.add(id);
-        return true;
-      });
-
-      setTasks(uniqueTasks);
+      const allTasks = (data || []).filter(t => t.title !== "Project Workspace Chat");
+      setTasks(allTasks);
     } catch (err) {
       console.error("Failed to load tasks:", err);
     } finally {
@@ -89,14 +72,24 @@ export default function MyTasks() {
     };
     window.addEventListener("task-added", handleSync);
     return () => window.removeEventListener("task-added", handleSync);
-  }, []);
+  }, [token]);
 
   const handleCreateTask = async (e) => {
     e.preventDefault();
-    if (!newTaskTitle.trim()) return;
+    if (!newTaskTitle.trim() || !token) return;
     try {
+      const projects = await projectsApi.list(token);
+      let project = projects[0];
+      if (!project) {
+        project = await projectsApi.create(token, {
+          project_name: "General Project",
+          department: "General Operations",
+          description: "Default project created automatically for tasks"
+        });
+      }
+
       const payload = {
-        project_id: 1, // Default project link
+        project_id: project.project_id || project.id,
         title: newTaskTitle,
         description: newTaskDesc || "Created from My Tasks checklist",
         status: "TODO",
@@ -104,16 +97,7 @@ export default function MyTasks() {
         due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
       };
       
-      if (token) {
-        // Save to DB
-        await tasksApi.create(token, payload);
-      } else {
-        // Fallback to local
-        const localSaved = localStorage.getItem("projecthub.tasks") || "[]";
-        const localTasks = JSON.parse(localSaved);
-        localTasks.push({ id: Date.now(), ...payload });
-        localStorage.setItem("projecthub.tasks", JSON.stringify(localTasks));
-      }
+      await tasksApi.create(token, payload);
 
       setNewTaskTitle("");
       setNewTaskDesc("");
@@ -141,46 +125,19 @@ export default function MyTasks() {
     }));
 
     try {
-      // Update local storage tasks if local
-      const localSaved = localStorage.getItem("projecthub.tasks");
-      if (localSaved) {
-        let localTasks = JSON.parse(localSaved);
-        const targetid = task.id || task.task_id;
-        const existsLocal = localTasks.find(t => t.id === targetid);
-        if (existsLocal) {
-          localTasks = localTasks.map(t => t.id === targetid ? { ...t, status: nextStatus } : t);
-          localStorage.setItem("projecthub.tasks", JSON.stringify(localTasks));
-          return;
-        }
-      }
-
-      // Otherwise update backend
       const tid = task.id || task.task_id;
       await tasksApi.update(token, tid, { status: nextStatus });
     } catch (err) {
       console.error("Failed to update status on DB:", err);
+      fetchTasks(); // rollback
     }
   };
 
   const handleDeleteTask = async (task) => {
+    if (!token) return;
     if (confirm("Delete this task?")) {
       try {
         const targetid = task.id || task.task_id;
-        
-        // Remove from local storage first
-        const localSaved = localStorage.getItem("projecthub.tasks");
-        if (localSaved) {
-          const localTasks = JSON.parse(localSaved);
-          const existsLocal = localTasks.find(t => t.id === targetid);
-          if (existsLocal) {
-            const filtered = localTasks.filter(t => t.id !== targetid);
-            localStorage.setItem("projecthub.tasks", JSON.stringify(filtered));
-            fetchTasks();
-            return;
-          }
-        }
-
-        // Remove from API
         await tasksApi.remove(token, targetid);
         fetchTasks();
       } catch (err) {
@@ -198,7 +155,11 @@ export default function MyTasks() {
     let result = [...tasks];
 
     // Filter by tab
-    if (activeTab === "High Priority") {
+    if (activeTab === "Action Required") {
+      result = result.filter(t => t.status !== "DONE" && t.status !== "COMPLETED");
+    } else if (activeTab === "Assigned To Me" && user) {
+      result = result.filter(t => Number(t.assigned_to) === Number(user.user_id));
+    } else if (activeTab === "High Priority") {
       result = result.filter(t => t.priority === "HIGH" || t.priority === "CRITICAL");
     }
 
@@ -279,9 +240,6 @@ export default function MyTasks() {
               >
                 <Plus size={16} strokeWidth={2.5} />
               </button>
-              <button onClick={() => alert("Tasks inbox updated.")} className="p-1 hover:bg-slate-100 rounded text-slate-500" title="Inbox">
-                <Inbox size={15} />
-              </button>
             </div>
           </div>
         </header>
@@ -306,34 +264,13 @@ export default function MyTasks() {
               <Layout size={14} />
             </button>
 
-            <button 
+             <button 
               onClick={() => setShowSearchInput(!showSearchInput)}
               className={`p-1 rounded hover:bg-slate-100 transition-colors ${showSearchInput ? "text-[#2563eb]" : "text-slate-400"}`}
               title="Search Filter"
             >
               <Search size={14} />
             </button>
-            <div className="w-[1px] h-4 bg-slate-200"></div>
-            
-            {/* Spacing buttons */}
-            <button 
-              onClick={() => setRowPadding("py-1.5")}
-              className={`flex flex-col justify-center items-center gap-[2px] p-1 rounded hover:bg-slate-100 ${rowPadding === "py-1.5" ? "bg-slate-200/50" : ""}`}
-              title="Compact spacing"
-            >
-              <span className="w-3.5 h-[1.5px] bg-slate-500"></span>
-              <span className="w-3.5 h-[1.5px] bg-slate-500"></span>
-            </button>
-            
-            <button 
-              onClick={() => setRowPadding("py-3.5")}
-              className={`flex flex-col justify-center items-center gap-[2px] p-1 rounded hover:bg-slate-100 ${rowPadding === "py-3.5" ? "bg-slate-200/50" : ""}`}
-              title="Comfortable spacing"
-            >
-              <span className="w-2.5 h-[1.5px] bg-slate-500"></span>
-              <span className="w-3.5 h-[1.5px] bg-slate-500"></span>
-            </button>
-            
             <div className="w-[1px] h-4 bg-slate-200"></div>
 
             <button 
@@ -344,38 +281,9 @@ export default function MyTasks() {
               <span>View for</span>
               <ChevronDown size={11} className="text-slate-400" />
             </button>
-
-            {/* Status Dropdown */}
-            <div className="relative group">
-              <button className="flex items-center gap-1.5 px-2 py-1 bg-slate-100 text-slate-600 rounded text-[12px] font-semibold hover:bg-slate-200 transition-colors">
-                <span className={`w-2 h-2 rounded-full ${
-                  statusFilter === "ALL" ? "bg-slate-400" :
-                  statusFilter === "TODO" ? "bg-rose-400" :
-                  statusFilter === "IN_PROGRESS" ? "bg-purple-400" : "bg-emerald-500"
-                }`}></span>
-                <span>Status: {statusFilter}</span>
-                <ChevronDown size={11} className="text-slate-400" />
-              </button>
-              
-              <div className="absolute left-0 mt-1 hidden group-hover:block w-36 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-30 text-xs text-left">
-                <button onClick={() => setStatusFilter("ALL")} className="w-full px-3 py-1.5 hover:bg-slate-50 text-slate-600 block">All Statuses</button>
-                <button onClick={() => setStatusFilter("TODO")} className="w-full px-3 py-1.5 hover:bg-slate-50 text-slate-600 block">To Do</button>
-                <button onClick={() => setStatusFilter("IN_PROGRESS")} className="w-full px-3 py-1.5 hover:bg-slate-50 text-slate-600 block">In Progress</button>
-                <button onClick={() => setStatusFilter("DONE")} className="w-full px-3 py-1.5 hover:bg-slate-50 text-slate-600 block">Completed</button>
-              </div>
-            </div>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
-            <button 
-              onClick={() => setShowPrefPanel(!showPrefPanel)}
-              className="flex items-center gap-1 text-[12px] font-semibold text-slate-500 hover:text-slate-700"
-            >
-              <Sliders size={13} className="text-slate-400" />
-              <span>Preferences</span>
-            </button>
-            <div className="w-[1px] h-4 bg-slate-200"></div>
-            
             {/* Toggle Sort Order */}
             <button 
               onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
@@ -386,9 +294,6 @@ export default function MyTasks() {
             </button>
             <button onClick={() => alert("Apply custom grouping and filters.")} className="p-1 text-slate-400 hover:text-slate-600" title="Filter options">
               <Filter size={14} />
-            </button>
-            <button className="p-1 text-slate-400 hover:text-slate-600">
-              <MoreHorizontal size={15} />
             </button>
           </div>
         </div>

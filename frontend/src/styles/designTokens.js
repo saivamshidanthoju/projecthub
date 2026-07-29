@@ -5,10 +5,10 @@
 export const designTokens = {
   colors: {
     // Left narrow sidebar (burgundy/plum)
-    sidebarLeftBg: "#4c0519",
-    sidebarLeftLogoBg: "#881337",
-    sidebarLeftIconColor: "#ffffff",
-    sidebarLeftIconOpacity: "0.75",
+    sidebarLeftBg: "#f8fafc",
+    sidebarLeftLogoBg: "#e2e8f0",
+    sidebarLeftIconColor: "#64748b",
+    sidebarLeftIconOpacity: "1.0",
     sidebarLeftIconActiveBg: "#ffffff",
     sidebarLeftIconActiveColor: "#9d174d",
 

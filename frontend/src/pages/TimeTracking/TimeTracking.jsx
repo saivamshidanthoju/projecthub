@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import DoubleSidebarLayout from "../../layouts/DoubleSidebarLayout";
+import { useAuth } from "../../context/AuthContext";
+import { timeTrackingApi } from "../../lib/api";
 import { 
   Maximize2, 
   ChevronLeft, 
@@ -16,15 +18,13 @@ import {
 } from "lucide-react";
 
 export default function TimeTracking() {
+  const { token } = useAuth();
   const [activeTab, setActiveTab] = useState("Daily");
   
   // Active date tracking
   const [activeDate, setActiveDate] = useState(new Date());
-
-  const [logs, setLogs] = useState(() => {
-    const saved = localStorage.getItem("projecthub.timelogs");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [logs, setLogs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Modal / Preferences
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,49 +34,60 @@ export default function TimeTracking() {
   const [logTime, setLogTime] = useState("");
   const [workdayTarget, setWorkdayTarget] = useState(8);
 
-  const syncLogs = () => {
-    const saved = localStorage.getItem("projecthub.timelogs");
-    setLogs(saved ? JSON.parse(saved) : []);
+  const syncLogs = async () => {
+    if (!token) return;
+    setIsLoading(true);
+    try {
+      const data = await timeTrackingApi.list(token);
+      setLogs(data);
+    } catch (err) {
+      console.error("Failed to load time logs:", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
     syncLogs();
-  }, []);
+  }, [token]);
 
   // Sync quick adds
   useEffect(() => {
     window.addEventListener("timelog-added", syncLogs);
     return () => window.removeEventListener("timelog-added", syncLogs);
-  }, []);
+  }, [token]);
 
-  const saveLogs = (updated) => {
-    setLogs(updated);
-    localStorage.setItem("projecthub.timelogs", JSON.stringify(updated));
-  };
-
-  const handleLogSubmit = (e) => {
+  const handleLogSubmit = async (e) => {
     e.preventDefault();
-    if (!logTitle.trim() || !logTime.trim()) return;
+    if (!logTitle.trim() || !logTime.trim() || !token) return;
 
-    const newLog = {
-      id: Date.now(),
-      title: logTitle,
-      comment: logComment,
-      time: parseFloat(logTime) || 0,
-      dateString: activeDate.toLocaleDateString(),
-      createdAt: new Date().toLocaleDateString(),
-    };
+    try {
+      const newLog = await timeTrackingApi.create(token, {
+        title: logTitle,
+        comment: logComment,
+        time: parseFloat(logTime) || 0,
+        dateString: activeDate.toLocaleDateString(),
+      });
 
-    saveLogs([...logs, newLog]);
-    setLogTitle("");
-    setLogComment("");
-    setLogTime("");
-    setIsModalOpen(false);
+      setLogs(prev => [...prev, newLog]);
+      setLogTitle("");
+      setLogComment("");
+      setLogTime("");
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error("Failed to create log:", err);
+    }
   };
 
-  const handleDeleteLog = (id) => {
+  const handleDeleteLog = async (id) => {
+    if (!token) return;
     if (confirm("Delete this time entry?")) {
-      saveLogs(logs.filter(log => log.id !== id));
+      try {
+        await timeTrackingApi.remove(token, id);
+        setLogs(prev => prev.filter(log => log.id !== id));
+      } catch (err) {
+        console.error("Failed to delete log:", err);
+      }
     }
   };
 
@@ -183,18 +194,6 @@ export default function TimeTracking() {
               <Maximize2 size={14} />
             </button>
             <div className="w-[1px] h-4 bg-slate-200"></div>
-            
-            <button className="flex flex-col justify-center items-center gap-[2px] p-1 text-slate-400 hover:text-slate-600 rounded hover:bg-slate-100">
-              <span className="w-3.5 h-[1.5px] bg-slate-400"></span>
-              <span className="w-3.5 h-[1.5px] bg-slate-400"></span>
-            </button>
-            
-            <button className="flex flex-col justify-center items-center gap-[2px] p-1 text-slate-400 hover:text-slate-600 rounded hover:bg-slate-100">
-              <span className="w-2.5 h-[1.5px] bg-slate-400"></span>
-              <span className="w-3.5 h-[1.5px] bg-slate-400"></span>
-            </button>
-            
-            <div className="w-[1px] h-4 bg-slate-200"></div>
 
             <button 
               onClick={() => alert("Select a team member view for timeline logs.")}
@@ -203,28 +202,6 @@ export default function TimeTracking() {
               <User size={13} className="text-slate-400" />
               <span>View for</span>
               <ChevronDown size={11} className="text-slate-400" />
-            </button>
-
-            <button 
-              onClick={() => alert("Change daily layouts settings.")}
-              className="flex items-center gap-1.5 px-2 py-1 bg-slate-100 text-slate-600 rounded text-[12px] font-semibold hover:bg-slate-200 transition-colors"
-            >
-              <Layout size={13} className="text-slate-400" />
-              <span>Default</span>
-            </button>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setShowPrefPanel(!showPrefPanel)}
-              className="flex items-center gap-1 text-[12px] font-semibold text-slate-500 hover:text-slate-700"
-            >
-              <Sliders size={13} className="text-slate-400" />
-              <span>Preferences</span>
-            </button>
-            <div className="w-[1px] h-4 bg-slate-200"></div>
-            <button className="p-1 text-slate-400 hover:text-slate-600">
-              <MoreHorizontal size={15} />
             </button>
           </div>
         </div>

@@ -187,53 +187,6 @@ export default function Calendar() {
   return (
     <DoubleSidebarLayout>
       <div className="flex-1 flex overflow-hidden bg-slate-50/30 text-left">
-          
-          {/* Column 1: Team Availability */}
-          <aside className="w-80 shrink-0 border-r border-border-subtle dark:border-outline-variant flex flex-col p-lg bg-surface-main dark:bg-inverse-surface overflow-y-auto custom-scrollbar select-none">
-            <div className="flex items-center gap-sm text-on-surface dark:text-surface-main font-bold mb-lg border-b border-border-subtle dark:border-outline-variant pb-md">
-              <span className="material-symbols-outlined text-primary text-[20px]">groups</span>
-              <h3 className="font-title-md text-title-md">Team Availability</h3>
-            </div>
-
-            <div className="space-y-md">
-              {teamAvailability.map((member, idx) => (
-                <div
-                  key={idx}
-                  className="p-md rounded-2xl border border-border-subtle dark:border-outline-variant bg-surface-sunken dark:bg-inverse-surface/40 flex flex-col gap-sm hover:shadow-sm transition-shadow"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-sm">
-                      <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xs">
-                        {member.name.split(" ").map(n => n[0]).join("").toUpperCase()}
-                      </div>
-                      <div className="text-left">
-                        <p className="font-bold text-sm text-on-surface dark:text-surface-main leading-tight">{member.name}</p>
-                        <p className="text-[10px] text-on-surface-variant dark:text-surface-variant leading-none mt-0.5">{member.role}</p>
-                      </div>
-                    </div>
-                    <span className={`w-2.5 h-2.5 rounded-full ${member.statusColor}`}></span>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between items-center text-[9px] font-label-md text-outline uppercase tracking-wider mb-1">
-                      <span>Load</span>
-                      <span className="font-bold">{member.load}%</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-surface-container dark:bg-on-surface-variant/20 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full ${member.barColor}`}
-                        style={{ width: `${member.load}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              {teamAvailability.length === 0 && (
-                <p className="text-on-surface-variant text-center py-4 text-xs">No active roster records.</p>
-              )}
-            </div>
-          </aside>
 
           {/* Column 2: Calendar Main Grid */}
           <div className="flex-1 flex flex-col h-full overflow-hidden">
@@ -261,9 +214,9 @@ export default function Calendar() {
               <div className="flex items-center gap-md">
                 <button
                   onClick={() => setIsAddEventOpen(true)}
-                  className="flex items-center gap-xs px-md h-9 bg-primary text-white rounded-lg font-button-text text-button-text hover:brightness-110 cursor-pointer shadow"
+                  className="flex items-center gap-xs px-md h-9 bg-slate-100 text-slate-700 border border-slate-200 rounded-lg font-button-text text-button-text hover:bg-slate-200 cursor-pointer shadow-sm transition-all duration-200 active:scale-95"
                 >
-                  <span className="material-symbols-outlined text-[18px]">add</span>
+                  <span className="material-symbols-outlined text-[18px] text-slate-500">add</span>
                   Create Event
                 </button>
               </div>

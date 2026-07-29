@@ -144,6 +144,15 @@ export const authApi = {
     const response = await apiRequest("/auth/me", { token });
     return normalizeUser(response.user || response.data);
   },
+
+  async updateProfile(token, payload) {
+    const response = await apiRequest("/auth/profile", {
+      method: "PUT",
+      token,
+      body: payload,
+    });
+    return response.user;
+  },
 };
 
 export const projectsApi = {
@@ -375,4 +384,92 @@ export const notificationsApi = {
     });
   },
 };
+
+export const myWorkApi = {
+  async list(token) {
+    const response = await apiRequest("/mywork/items", { token });
+    return response.data || { inbox: [], today: [], tomorrow: [], upcoming: [] };
+  },
+
+  async create(token, payload) {
+    const response = await apiRequest("/mywork/items", {
+      method: "POST",
+      token,
+      body: payload,
+    });
+    return response.data;
+  },
+
+  async update(token, id, payload) {
+    const response = await apiRequest(`/mywork/items/${id}`, {
+      method: "PUT",
+      token,
+      body: payload,
+    });
+    return response.data;
+  },
+
+  async remove(token, id) {
+    await apiRequest(`/mywork/items/${id}`, { method: "DELETE", token });
+  },
+};
+
+export const notesApi = {
+  async list(token) {
+    const response = await apiRequest("/notes", { token });
+    return response.data || [];
+  },
+
+  async create(token, payload) {
+    const response = await apiRequest("/notes", {
+      method: "POST",
+      token,
+      body: payload,
+    });
+    return response.data;
+  },
+
+  async update(token, id, payload) {
+    const response = await apiRequest(`/notes/${id}`, {
+      method: "PUT",
+      token,
+      body: payload,
+    });
+    return response.data;
+  },
+
+  async remove(token, id) {
+    await apiRequest(`/notes/${id}`, { method: "DELETE", token });
+  },
+};
+
+export const timeTrackingApi = {
+  async list(token) {
+    const response = await apiRequest("/timetracking/logs", { token });
+    return response.data || [];
+  },
+
+  async create(token, payload) {
+    const response = await apiRequest("/timetracking/logs", {
+      method: "POST",
+      token,
+      body: payload,
+    });
+    return response.data;
+  },
+
+  async update(token, id, payload) {
+    const response = await apiRequest(`/timetracking/logs/${id}`, {
+      method: "PUT",
+      token,
+      body: payload,
+    });
+    return response.data;
+  },
+
+  async remove(token, id) {
+    await apiRequest(`/timetracking/logs/${id}`, { method: "DELETE", token });
+  },
+};
+
 

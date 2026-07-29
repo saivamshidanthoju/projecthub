@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import DoubleSidebarLayout from "../../layouts/DoubleSidebarLayout";
+import { useAuth } from "../../context/AuthContext";
+import { myWorkApi } from "../../lib/api";
 import { 
   Maximize2, 
   Calendar as CalendarIcon, 
@@ -14,18 +17,36 @@ import {
 } from "lucide-react";
 
 export default function MyWork() {
+  const { token } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("Week");
   
-  // Custom tasks for columns to make it fully interactive!
-  const [columnItems, setColumnItems] = useState(() => {
-    const saved = localStorage.getItem("projecthub.mywork");
-    return saved ? JSON.parse(saved) : {
-      inbox: [],
-      today: [],
-      tomorrow: [],
-      upcoming: []
-    };
+  // Custom tasks for columns from DB
+  const [columnItems, setColumnItems] = useState({
+    inbox: [],
+    today: [],
+    tomorrow: [],
+    upcoming: []
   });
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch items from database on load
+  useEffect(() => {
+    const fetchItems = async () => {
+      if (!token) return;
+      setIsLoading(true);
+      try {
+        const data = await myWorkApi.list(token);
+        setColumnItems(data);
+      } catch (err) {
+        console.error("Failed to fetch My Work items:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchItems();
+  }, [token]);
 
   // Modal control states
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -36,11 +57,6 @@ export default function MyWork() {
   // Preferences controls
   const [showPrefPanel, setShowPrefPanel] = useState(false);
   const [filterUser, setFilterUser] = useState("All Work");
-
-  const saveWorkItems = (updated) => {
-    setColumnItems(updated);
-    localStorage.setItem("projecthub.mywork", JSON.stringify(updated));
-  };
 
   // Helper to get date info matching screenshots
   const getColumn4Name = () => {
@@ -64,47 +80,63 @@ export default function MyWork() {
     setIsModalOpen(true);
   };
 
-  const handleSaveItem = (e) => {
+  const handleSaveItem = async (e) => {
     e.preventDefault();
-    if (!taskTitle.trim()) return;
+    if (!taskTitle.trim() || !token) return;
 
-    if (editingCardId) {
-      // Edit mode
-      const updatedList = columnItems[targetColumn].map(item => 
-        item.id === editingCardId ? { ...item, title: taskTitle } : item
-      );
-      saveWorkItems({
-        ...columnItems,
-        [targetColumn]: updatedList
-      });
-    } else {
-      // Create mode
-      const newItem = {
-        id: Date.now(),
-        title: taskTitle,
-        assignedUser: filterUser === "All Work" ? "Me" : filterUser
-      };
-      saveWorkItems({
-        ...columnItems,
-        [targetColumn]: [...columnItems[targetColumn], newItem]
-      });
+    try {
+      if (editingCardId) {
+        // Edit mode
+        const updatedItem = await myWorkApi.update(token, editingCardId, {
+          title: taskTitle,
+          column_key: targetColumn,
+          assigned_user: filterUser === "All Work" ? "Me" : filterUser
+        });
+
+        const updatedList = columnItems[targetColumn].map(item => 
+          item.id === editingCardId ? updatedItem : item
+        );
+        setColumnItems({
+          ...columnItems,
+          [targetColumn]: updatedList
+        });
+      } else {
+        // Create mode
+        const newItem = await myWorkApi.create(token, {
+          title: taskTitle,
+          column_key: targetColumn,
+          assigned_user: filterUser === "All Work" ? "Me" : filterUser
+        });
+
+        setColumnItems({
+          ...columnItems,
+          [targetColumn]: [...columnItems[targetColumn], newItem]
+        });
+      }
+      setIsModalOpen(false);
+      setTaskTitle("");
+      setEditingCardId(null);
+    } catch (err) {
+      console.error("Failed to save work item:", err);
     }
-
-    setIsModalOpen(false);
-    setTaskTitle("");
-    setEditingCardId(null);
   };
 
-  const handleDeleteItem = (columnKey, id, e) => {
+  const handleDeleteItem = async (columnKey, id, e) => {
     if (e) e.stopPropagation();
+    if (!token) return;
     if (confirm("Delete this work item?")) {
-      const updatedList = columnItems[columnKey].filter(item => item.id !== id);
-      saveWorkItems({
-        ...columnItems,
-        [columnKey]: updatedList
-      });
-      if (editingCardId === id) {
-        setIsModalOpen(false);
+      try {
+        await myWorkApi.remove(token, id);
+        const updatedList = columnItems[columnKey].filter(item => item.id !== id);
+        setColumnItems({
+          ...columnItems,
+          [columnKey]: updatedList
+        });
+        if (editingCardId === id) {
+          setIsModalOpen(false);
+        }
+      } catch (err) {
+        console.error("Failed to delete work item:", err);
       }
     }
   };
@@ -147,9 +179,6 @@ export default function MyWork() {
               >
                 <Plus size={16} strokeWidth={2.5} />
               </button>
-              <button onClick={() => alert("My Work Inbox updated.")} className="p-1 hover:bg-slate-100 rounded text-slate-500" title="Inbox drawer">
-                <Inbox size={15} />
-              </button>
             </div>
           </div>
         </header>
@@ -164,7 +193,7 @@ export default function MyWork() {
             >
               <Maximize2 size={14} />
             </button>
-            <button onClick={() => alert("Timeline / Calendar scheduler view loaded.")} className="p-1 text-slate-400 hover:text-slate-600 rounded hover:bg-slate-100" title="Calendar list view">
+            <button onClick={() => navigate("/calendar")} className="p-1 text-slate-400 hover:text-slate-600 rounded hover:bg-slate-100" title="Calendar list view">
               <CalendarIcon size={14} className="text-slate-400" />
             </button>
             
@@ -183,20 +212,6 @@ export default function MyWork() {
                 <button onClick={() => setFilterUser("Shared")} className="w-full px-3 py-1.5 hover:bg-slate-50 text-slate-600 block">Shared Tasks</button>
               </div>
             </div>
-          </div>
-
-          <div className="flex items-center gap-3 shrink-0">
-            <button 
-              onClick={() => setShowPrefPanel(!showPrefPanel)}
-              className="flex items-center gap-1 text-[12px] font-semibold text-slate-500 hover:text-slate-700"
-            >
-              <Sliders size={13} className="text-slate-400" />
-              <span>Preferences</span>
-            </button>
-            <div className="w-[1px] h-4 bg-slate-200"></div>
-            <button className="p-1 text-slate-400 hover:text-slate-600">
-              <MoreHorizontal size={15} />
-            </button>
           </div>
         </div>
 
@@ -329,10 +344,21 @@ export default function MyWork() {
             </div>
             
             <button 
-              onClick={() => {
+              onClick={async () => {
                 if (confirm("Reset all board columns?")) {
-                  saveWorkItems({ inbox: [], today: [], tomorrow: [], upcoming: [] });
-                  alert("Work columns reset successfully.");
+                  try {
+                    const deletePromises = [];
+                    Object.keys(columnItems).forEach(col => {
+                      columnItems[col].forEach(item => {
+                        deletePromises.push(myWorkApi.remove(token, item.id));
+                      });
+                    });
+                    await Promise.all(deletePromises);
+                    setColumnItems({ inbox: [], today: [], tomorrow: [], upcoming: [] });
+                    alert("Work columns reset successfully.");
+                  } catch (err) {
+                    console.error("Failed to reset columns:", err);
+                  }
                 }
               }}
               className="w-full py-2 bg-red-50 text-red-600 rounded-lg font-bold border border-red-200 text-center"

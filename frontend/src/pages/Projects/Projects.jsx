@@ -19,24 +19,28 @@ function mapProjectFromBackend(proj) {
     "In Progress": {
       bg: "bg-slate-50 text-slate-600 dark:bg-slate-900/40 dark:text-slate-400 border border-slate-200 dark:border-slate-800/30",
       dot: "bg-slate-400",
+      text: "text-slate-500",
       icon: "terminal",
       iconBg: "bg-slate-100 text-slate-600"
     },
     "Completed": {
       bg: "bg-green-50 text-green-700 dark:bg-green-950/40 dark:text-green-400 border border-green-200 dark:border-green-800/30",
       dot: "bg-green-500",
+      text: "text-emerald-600",
       icon: "verified",
       iconBg: "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400"
     },
     "Delayed": {
       bg: "bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400 border border-orange-200 dark:border-orange-800/30",
       dot: "bg-orange-500",
+      text: "text-orange-500",
       icon: "warning",
       iconBg: "bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-400"
     },
     "Archived": {
       bg: "bg-gray-50 text-gray-700 dark:bg-gray-950/40 dark:text-gray-400 border border-gray-200 dark:border-gray-800/30",
       dot: "bg-gray-500",
+      text: "text-slate-400",
       icon: "archive",
       iconBg: "bg-gray-100 dark:bg-gray-950 text-gray-700 dark:text-gray-400"
     }
@@ -51,6 +55,7 @@ function mapProjectFromBackend(proj) {
     description: proj.description || "",
     status: status,
     statusColor: cfg.bg,
+    textColor: cfg.text,
     dotColor: cfg.dot,
     progress: proj.progress || 0,
     icon: cfg.icon,
@@ -207,15 +212,15 @@ export default function Projects() {
 
               <button 
                 onClick={() => setIsModalOpen(true)}
-                className="flex items-center gap-sm px-lg h-10 bg-primary text-white rounded-lg hover:brightness-110 shadow-md transition-all duration-200 active:scale-95 font-button-text text-button-text cursor-pointer"
+                className="flex items-center gap-sm px-lg h-10 bg-slate-100 text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-200 shadow-sm transition-all duration-200 active:scale-95 font-button-text text-button-text cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[20px]">add</span>
+                <span className="material-symbols-outlined text-[20px] text-slate-500">add</span>
                 New Project
               </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-gutter">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter">
             <div className="bg-surface-main dark:bg-inverse-surface p-md border border-border-subtle dark:border-outline-variant rounded-xl shadow-sm">
               <p className="text-label-md font-label-md text-on-surface-variant dark:text-surface-variant mb-xs uppercase tracking-wider text-[10px]">
                 Total Projects
@@ -237,32 +242,6 @@ export default function Projects() {
                 </span>
               </div>
             </div>
-
-            <div className="bg-surface-main dark:bg-inverse-surface p-md border border-border-subtle dark:border-outline-variant rounded-xl shadow-sm">
-              <p className="text-label-md font-label-md text-on-surface-variant dark:text-surface-variant mb-xs uppercase tracking-wider text-[10px]">
-                Team Efficiency
-              </p>
-              <div className="flex items-end justify-between">
-                <span className="text-[20px] font-bold text-slate-700">
-                  94%
-                </span>
-                <div className="flex -space-x-2 select-none">
-                  <div className="w-6 h-6 rounded-full border-2 border-surface-main dark:border-inverse-surface bg-slate-100"></div>
-                  <div className="w-6 h-6 rounded-full border-2 border-surface-main dark:border-inverse-surface bg-slate-200"></div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-surface-main dark:bg-inverse-surface p-md border border-border-subtle dark:border-outline-variant rounded-xl shadow-sm">
-              <p className="text-label-md font-label-md text-on-surface-variant dark:text-surface-variant mb-xs uppercase tracking-wider text-[10px]">
-                Next Deadline
-              </p>
-              <div className="flex items-end justify-between">
-                <span className="text-[20px] font-bold text-slate-700">
-                  02d 14h
-                </span>
-              </div>
-            </div>
           </div>
 
           <div className="bg-surface-main dark:bg-inverse-surface border border-border-subtle dark:border-outline-variant rounded-xl shadow-sm overflow-hidden">
@@ -270,19 +249,19 @@ export default function Projects() {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-surface-sunken dark:bg-inverse-surface border-b border-border-subtle dark:border-outline-variant select-none">
-                    <th className="px-lg py-md font-label-md text-label-md text-on-surface-variant dark:text-surface-variant uppercase tracking-wider">
+                    <th className="px-lg py-2 font-label-md text-label-md text-on-surface-variant dark:text-surface-variant uppercase tracking-wider">
                       Project Name
                     </th>
-                    <th className="px-lg py-md font-label-md text-label-md text-on-surface-variant dark:text-surface-variant uppercase tracking-wider">
+                    <th className="px-lg py-2 font-label-md text-label-md text-on-surface-variant dark:text-surface-variant uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-lg py-md font-label-md text-label-md text-on-surface-variant dark:text-surface-variant uppercase tracking-wider">
+                    <th className="px-lg py-2 font-label-md text-label-md text-on-surface-variant dark:text-surface-variant uppercase tracking-wider">
                       Team
                     </th>
-                    <th className="px-lg py-md font-label-md text-label-md text-on-surface-variant dark:text-surface-variant uppercase tracking-wider">
+                    <th className="px-lg py-2 font-label-md text-label-md text-on-surface-variant dark:text-surface-variant uppercase tracking-wider">
                       Progress
                     </th>
-                    <th className="px-lg py-md font-label-md text-label-md text-on-surface-variant dark:text-surface-variant uppercase tracking-wider text-right">
+                    <th className="px-lg py-2 font-label-md text-label-md text-on-surface-variant dark:text-surface-variant uppercase tracking-wider text-right">
                       Actions
                     </th>
                   </tr>
@@ -290,7 +269,7 @@ export default function Projects() {
                 <tbody className="divide-y divide-border-subtle dark:divide-outline-variant">
                   {paginatedProjects.map((proj) => (
                     <tr key={proj.id} className="hover:bg-surface-container-lowest dark:hover:bg-on-surface-variant/20 transition-colors group">
-                      <td className="px-lg py-md">
+                      <td className="px-lg py-2">
                         <div className="flex items-center gap-md">
                           <div className={`w-10 h-10 rounded-lg ${proj.iconBg} flex items-center justify-center shrink-0`}>
                             <span className="material-symbols-outlined">{proj.icon}</span>
@@ -305,13 +284,13 @@ export default function Projects() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-lg py-md">
-                        <span className={`inline-flex items-center gap-xs px-sm py-1 rounded-full font-label-md text-label-md font-semibold ${proj.statusColor}`}>
+                      <td className="px-lg py-2">
+                        <span className={`inline-flex items-center gap-xs font-label-md text-label-md ${proj.textColor}`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${proj.dotColor}`}></span>
                           {proj.status}
                         </span>
                       </td>
-                      <td className="px-lg py-md">
+                      <td className="px-lg py-2">
                         <div className="flex -space-x-2 select-none">
                           {proj.team.map((t, idx) => (
                             <img
@@ -328,7 +307,7 @@ export default function Projects() {
                           )}
                         </div>
                       </td>
-                      <td className="px-lg py-md">
+                      <td className="px-lg py-2">
                         <div className="w-full max-w-[160px]">
                           <div className="flex items-center justify-between mb-1 select-none">
                             <span className="text-body-sm font-medium text-on-surface dark:text-surface-main">
@@ -343,7 +322,7 @@ export default function Projects() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-lg py-md text-right">
+                      <td className="px-lg py-2 text-right">
                         <div className="flex items-center justify-end gap-sm">
                           <button
                             onClick={() => handleEdit(proj)}
@@ -389,9 +368,9 @@ export default function Projects() {
                   <button
                     key={idx}
                     onClick={() => setCurrentPage(idx + 1)}
-                    className={`w-8 h-8 rounded-lg font-label-md text-label-md font-bold cursor-pointer ${
+                    className={`w-8 h-8 rounded-lg font-label-md text-label-md font-bold cursor-pointer transition-colors ${
                       currentPage === idx + 1
-                        ? "bg-primary text-white"
+                        ? "bg-slate-200 text-slate-800 border border-slate-300"
                         : "text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-on-surface-variant/50"
                     }`}
                   >
@@ -409,116 +388,7 @@ export default function Projects() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
-            <div className="lg:col-span-2 bg-surface-main dark:bg-inverse-surface p-lg border border-border-subtle dark:border-outline-variant rounded-xl shadow-sm">
-              <div className="flex items-center justify-between mb-lg select-none">
-                <h3 className="font-title-md text-title-md text-on-surface dark:text-surface-main font-bold">
-                  Recent Activity
-                </h3>
-                <button className="text-primary dark:text-inverse-primary font-button-text text-button-text hover:underline cursor-pointer">
-                  View All
-                </button>
-              </div>
-              
-              <div className="space-y-lg">
-                <div className="flex gap-md">
-                  <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center shrink-0 text-slate-600 dark:text-slate-400 select-none">
-                    <span className="material-symbols-outlined text-[16px]">upload_file</span>
-                  </div>
-                  <div>
-                    <p className="text-body-md text-text-heading dark:text-surface-main">
-                      <span className="font-semibold">Sarah Jenkins</span> uploaded 4 new assets to{" "}
-                      <span className="text-slate-700 dark:text-slate-300 font-semibold">Mobile App V3.2</span>
-                    </p>
-                    <p className="text-body-sm text-on-surface-variant dark:text-surface-variant">2 hours ago</p>
-                  </div>
-                </div>
 
-                <div className="flex gap-md">
-                  <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-950/20 flex items-center justify-center shrink-0 text-green-700 dark:text-green-400 select-none">
-                    <span className="material-symbols-outlined text-[16px]">check_circle</span>
-                  </div>
-                  <div>
-                    <p className="text-body-md text-text-heading dark:text-surface-main">
-                      <span className="font-semibold">Project Milestone</span> achieved: Beta Release of{" "}
-                      <span className="text-slate-700 dark:text-slate-300 font-semibold">Global Payroll Sync</span>
-                    </p>
-                    <p className="text-body-sm text-on-surface-variant dark:text-surface-variant">
-                      Yesterday at 4:30 PM
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-md">
-                  <div className="w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-950/20 flex items-center justify-center shrink-0 text-orange-700 dark:text-orange-400 select-none">
-                    <span className="material-symbols-outlined text-[16px]">warning</span>
-                  </div>
-                  <div>
-                    <p className="text-body-md text-text-heading dark:text-surface-main">
-                      <span className="font-semibold">System Alert:</span> Budget overrun detected on{" "}
-                      <span className="text-slate-700 dark:text-slate-300 font-semibold">Quantum API Gateway</span>
-                    </p>
-                    <p className="text-body-sm text-on-surface-variant dark:text-surface-variant">Oct 12, 2023</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-surface-main dark:bg-inverse-surface p-lg border border-border-subtle dark:border-outline-variant rounded-xl shadow-sm flex flex-col">
-              <h3 className="font-title-md text-title-md text-on-surface dark:text-surface-main font-bold mb-lg select-none">
-                Workload Distribution
-              </h3>
-              
-              <div className="space-y-md flex-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-body-md text-on-surface dark:text-surface-main">Engineering</span>
-                  <span className="text-slate-500 bg-slate-100 text-[10px] font-bold px-2 py-0.5 rounded">
-                    42%
-                  </span>
-                </div>
-                <div className="w-full h-2 bg-surface-sunken dark:bg-on-surface-variant/30 rounded-full overflow-hidden">
-                  <div className="h-full bg-slate-500 rounded-full transition-all duration-1000" style={{ width: "42%" }}></div>
-                </div>
-
-                <div className="flex items-center justify-between pt-base">
-                  <span className="text-body-md text-on-surface dark:text-surface-main">Product Design</span>
-                  <span className="text-slate-500 bg-slate-100 text-[10px] font-bold px-2 py-0.5 rounded">
-                    28%
-                  </span>
-                </div>
-                <div className="w-full h-2 bg-surface-sunken dark:bg-on-surface-variant/30 rounded-full overflow-hidden">
-                  <div className="h-full bg-slate-400 rounded-full transition-all duration-1000" style={{ width: "28%" }}></div>
-                </div>
-
-                <div className="flex items-center justify-between pt-base">
-                  <span className="text-body-md text-on-surface dark:text-surface-main">Marketing</span>
-                  <span className="text-slate-500 bg-slate-100 text-[10px] font-bold px-2 py-0.5 rounded">
-                    15%
-                  </span>
-                </div>
-                <div className="w-full h-2 bg-surface-sunken dark:bg-on-surface-variant/30 rounded-full overflow-hidden">
-                  <div className="h-full bg-slate-300 rounded-full transition-all duration-1000" style={{ width: "15%" }}></div>
-                </div>
-
-                <div className="flex items-center justify-between pt-base">
-                  <span className="text-body-md text-on-surface dark:text-surface-main">Quality Assurance</span>
-                  <span className="text-slate-500 bg-slate-100 text-[10px] font-bold px-2 py-0.5 rounded">
-                    15%
-                  </span>
-                </div>
-                <div className="w-full h-2 bg-surface-sunken dark:bg-on-surface-variant/30 rounded-full overflow-hidden">
-                  <div className="h-full bg-slate-400 rounded-full transition-all duration-1000" style={{ width: "15%" }}></div>
-                </div>
-              </div>
-              
-              <button 
-                onClick={() => alert("Optimizing workload distribution across teams...")}
-                className="mt-lg w-full py-sm border border-border-subtle dark:border-outline-variant rounded-lg text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-low dark:hover:bg-on-surface-variant/50 transition-all font-button-text text-button-text cursor-pointer bg-white dark:bg-inverse-surface"
-              >
-                Optimize Team
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 

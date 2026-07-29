@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import DoubleSidebarLayout from "../../layouts/DoubleSidebarLayout";
+import { useAuth } from "../../context/AuthContext";
+import { notesApi } from "../../lib/api";
 import { Sliders, FileText, Sparkles, Plus, Trash2, X, Maximize2, Save, Undo, Type } from "lucide-react";
 
 export default function Notepad() {
-  const [notes, setNotes] = useState(() => {
-    const saved = localStorage.getItem("projecthub.notes");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const { token } = useAuth();
+  const [notes, setNotes] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   const [selectedNoteId, setSelectedNoteId] = useState(null);
   const [noteTitle, setNoteTitle] = useState("");
@@ -22,74 +23,104 @@ export default function Notepad() {
   // Search query
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Sync quick adds
+  // Fetch all notes on load
+  const fetchNotes = async () => {
+    if (!token) return;
+    setIsLoading(true);
+    try {
+      const data = await notesApi.list(token);
+      setNotes(data);
+    } catch (err) {
+      console.error("Failed to load notes:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotes();
+  }, [token]);
+
+  // Sync quick adds or changes
   useEffect(() => {
     const syncNotes = () => {
-      const saved = localStorage.getItem("projecthub.notes");
-      setNotes(saved ? JSON.parse(saved) : []);
+      fetchNotes();
     };
     window.addEventListener("notes-updated", syncNotes);
     return () => window.removeEventListener("notes-updated", syncNotes);
-  }, []);
-
-  const saveNotes = (updated) => {
-    setNotes(updated);
-    localStorage.setItem("projecthub.notes", JSON.stringify(updated));
-  };
+  }, [token]);
 
   const handleSelectNote = (note) => {
     setSelectedNoteId(note.id);
     setNoteTitle(note.title);
-    setNoteContent(note.content);
+    setNoteContent(note.content || "");
     setNoteType(note.type);
   };
 
-  const handleCreateNote = (type) => {
-    const newNote = {
-      id: Date.now(),
-      title: type === "rich" ? "Untitled Rich Note" : "Untitled Plain Note",
-      content: "",
-      type: type,
-      createdAt: new Date().toLocaleDateString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
-    };
+  const handleCreateNote = async (type) => {
+    if (!token) return;
+    try {
+      const newNote = await notesApi.create(token, {
+        title: type === "rich" ? "Untitled Rich Note" : "Untitled Plain Note",
+        content: "",
+        type: type,
+      });
 
-    const updated = [newNote, ...notes];
-    saveNotes(updated);
-    handleSelectNote(newNote);
+      setNotes(prev => [newNote, ...prev]);
+      handleSelectNote(newNote);
+    } catch (err) {
+      console.error("Failed to create note:", err);
+    }
   };
 
-  // Real-time auto save
+  // Real-time auto save using useEffect + debounce below,
+  // we just keep local text state updated immediately
   const handleContentChange = (content) => {
     setNoteContent(content);
-    const updated = notes.map(n => {
-      if (n.id === selectedNoteId) {
-        return { ...n, content: content };
-      }
-      return n;
-    });
-    saveNotes(updated);
   };
 
   const handleTitleChange = (title) => {
     setNoteTitle(title);
-    const updated = notes.map(n => {
-      if (n.id === selectedNoteId) {
-        return { ...n, title: title };
-      }
-      return n;
-    });
-    saveNotes(updated);
   };
 
-  const handleDelete = (id, e) => {
+  // Debounced auto-save effect
+  useEffect(() => {
+    if (!selectedNoteId || !token) return;
+
+    const currentNote = notes.find(n => n.id === selectedNoteId);
+    if (!currentNote) return;
+    if (currentNote.title === noteTitle && currentNote.content === noteContent) return;
+
+    const timer = setTimeout(async () => {
+      try {
+        const updated = await notesApi.update(token, selectedNoteId, {
+          title: noteTitle,
+          content: noteContent,
+          type: noteType
+        });
+        setNotes(prev => prev.map(n => n.id === selectedNoteId ? updated : n));
+      } catch (err) {
+        console.error("Auto-save failed:", err);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [noteTitle, noteContent, selectedNoteId, token]);
+
+  const handleDelete = async (id, e) => {
     if (e) e.stopPropagation();
+    if (!token) return;
     if (confirm("Are you sure you want to delete this note?")) {
-      const updated = notes.filter(n => n.id !== id);
-      saveNotes(updated);
-      if (selectedNoteId === id) {
-        setSelectedNoteId(null);
-        setNoteTitle("");
-        setNoteContent("");
+      try {
+        await notesApi.remove(token, id);
+        setNotes(prev => prev.filter(n => n.id !== id));
+        if (selectedNoteId === id) {
+          setSelectedNoteId(null);
+          setNoteTitle("");
+          setNoteContent("");
+        }
+      } catch (err) {
+        console.error("Failed to delete note:", err);
       }
     }
   };
@@ -99,8 +130,8 @@ export default function Notepad() {
   };
 
   const filteredNotes = notes.filter(n => 
-    n.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    n.content.toLowerCase().includes(searchQuery.toLowerCase())
+    (n.title || "").toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (n.content || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const selectedNote = notes.find(n => n.id === selectedNoteId);

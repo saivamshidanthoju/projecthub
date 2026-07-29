@@ -37,12 +37,7 @@ export default function Hero() {
           animate="visible"
           className="md:col-span-6 z-10"
         >
-          <motion.span
-            variants={itemVariants}
-            className="inline-flex items-center gap-1.5 bg-primary/5 text-primary border border-primary/20 px-3 py-0.5 rounded-full font-label-md text-[11px] font-bold mb-6 tracking-wide select-none"
-          >
-            NEW: v4.0 ENTERPRISE
-          </motion.span>
+
           <motion.h1
             variants={itemVariants}
             className="font-display-lg text-display-lg text-text-heading mb-6 tracking-tight leading-tight font-bold"

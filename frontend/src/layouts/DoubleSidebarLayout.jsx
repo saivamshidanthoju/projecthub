@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { projectsApi, tasksApi, notesApi, timeTrackingApi, authApi } from "../lib/api";
 import { 
   Home, 
   MessageSquare, 
@@ -22,14 +23,15 @@ import {
   LogOut,
   Settings as SettingsIcon,
   CheckCircle,
-  Menu
+  Menu,
+  Calendar
 } from "lucide-react";
 
 // Helper component for narrow sidebar icons
 const NarrowSidebarIcon = ({ Icon, active, to, onClick }) => {
   const activeClass = active 
-    ? "bg-white text-[#9d174d] rounded-xl shadow-sm"
-    : "text-white/75 hover:bg-white/10 hover:text-white rounded-xl";
+    ? "bg-white text-[#9d174d] rounded-xl shadow-sm border border-slate-200/50"
+    : "text-slate-500 hover:bg-slate-100 hover:text-slate-800 rounded-xl";
 
   const content = (
     <div 
@@ -46,7 +48,7 @@ const NarrowSidebarIcon = ({ Icon, active, to, onClick }) => {
 export default function DoubleSidebarLayout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, token, logout, updateSessionUser } = useAuth();
   
   const pathname = location.pathname;
 
@@ -69,12 +71,81 @@ export default function DoubleSidebarLayout({ children }) {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isRecentDropdownOpen, setIsRecentDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAccountSettingsModalOpen, setIsAccountSettingsModalOpen] = useState(false);
 
   // Form states
   const [newViewName, setNewViewName] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [quickAddType, setQuickAddType] = useState("task"); // task | note | timelog
   const [quickTitle, setQuickTitle] = useState("");
+
+  const [settingsFirstName, setSettingsFirstName] = useState("");
+  const [settingsLastName, setSettingsLastName] = useState("");
+  const [settingsEmail, setSettingsEmail] = useState("");
+  const [settingsPassword, setSettingsPassword] = useState("");
+
+  useEffect(() => {
+    if (isAccountSettingsModalOpen && user) {
+      setSettingsFirstName(user.first_name || "");
+      setSettingsLastName(user.last_name || "");
+      setSettingsEmail(user.email || "");
+      setSettingsPassword("");
+    }
+  }, [isAccountSettingsModalOpen, user]);
+
+  const [searchProjects, setSearchProjects] = useState([]);
+  const [searchTasks, setSearchTasks] = useState([]);
+  const [searchNotes, setSearchNotes] = useState([]);
+  const [searchTeam, setSearchTeam] = useState([]);
+
+  useEffect(() => {
+    const loadSearchData = async () => {
+      if (!isSearchModalOpen || !token) return;
+      try {
+        const [projects, tasks, notes, team] = await Promise.all([
+          projectsApi.list(token).catch(() => []),
+          tasksApi.list(token).catch(() => []),
+          notesApi.list(token).catch(() => []),
+          teamApi.list(token).catch(() => [])
+        ]);
+        setSearchProjects(projects);
+        setSearchTasks(tasks.filter(t => t.title !== "Project Workspace Chat"));
+        setSearchNotes(notes);
+        setSearchTeam(team);
+      } catch (err) {
+        console.error("Failed to load search spotlight datasets:", err);
+      }
+    };
+    loadSearchData();
+  }, [isSearchModalOpen, token]);
+
+  const filteredSearchProjects = searchQuery.trim()
+    ? searchProjects.filter(p => (p.project_name || "").toLowerCase().includes(searchQuery.toLowerCase()))
+    : [];
+
+  const filteredSearchTasks = searchQuery.trim()
+    ? searchTasks.filter(t => (t.title || "").toLowerCase().includes(searchQuery.toLowerCase()))
+    : [];
+
+  const filteredSearchNotes = searchQuery.trim()
+    ? searchNotes.filter(n => 
+        (n.title || "").toLowerCase().includes(searchQuery.toLowerCase()) || 
+        (n.content || "").toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [];
+
+  const filteredSearchTeam = searchQuery.trim()
+    ? searchTeam.filter(m => {
+        const name = `${m.first_name || ""} ${m.last_name || ""}`.toLowerCase();
+        return name.includes(searchQuery.toLowerCase()) || (m.email || "").toLowerCase().includes(searchQuery.toLowerCase());
+      })
+    : [];
+
+  const hasSearchResults = 
+    filteredSearchProjects.length > 0 || 
+    filteredSearchTasks.length > 0 || 
+    filteredSearchNotes.length > 0 || 
+    filteredSearchTeam.length > 0;
 
   // Listening to sidebar toggle events
   useEffect(() => {
@@ -104,6 +175,7 @@ export default function DoubleSidebarLayout({ children }) {
     pathname === "/my-tasks" || 
     pathname === "/time-tracking" || 
     pathname === "/notepad" || 
+    pathname === "/calendar" || 
     pathname === "/notifications" ||
     pathname === "/dashboard";
 
@@ -130,6 +202,9 @@ export default function DoubleSidebarLayout({ children }) {
     { label: "Notepad", path: "/notepad", icon: (active) => (
       <FileText size={15} className={active ? "text-[#9d174d]" : "text-slate-500"} />
     )},
+    { label: "Calendar", path: "/calendar", icon: (active) => (
+      <Calendar size={15} className={active ? "text-[#9d174d]" : "text-slate-500"} />
+    )},
     { label: "Notifications", path: "/notifications", icon: (active) => (
       <div className="relative">
         <Bell size={15} className={active ? "text-[#9d174d]" : "text-slate-500"} />
@@ -154,52 +229,75 @@ export default function DoubleSidebarLayout({ children }) {
     localStorage.setItem("projecthub.customviews", JSON.stringify(updated));
   };
 
-  const handleQuickAdd = (e) => {
+  const handleQuickAdd = async (e) => {
     e.preventDefault();
-    if (!quickTitle.trim()) return;
+    if (!quickTitle.trim() || !token) return;
 
-    if (quickAddType === "task") {
-      const saved = localStorage.getItem("projecthub.tasks") || "[]";
-      const tasks = JSON.parse(saved);
-      tasks.push({
-        id: Date.now(),
-        title: quickTitle,
-        priority: "MEDIUM",
-        status: "TODO",
-        due_date: new Date(Date.now() + 5*24*60*60*1000).toISOString()
-      });
-      // Try listing to window update event or save to api/localStorage
-      localStorage.setItem("projecthub.tasks", JSON.stringify(tasks));
-      window.dispatchEvent(new Event("task-added"));
-    } else if (quickAddType === "note") {
-      const saved = localStorage.getItem("projecthub.notes") || "[]";
-      const notes = JSON.parse(saved);
-      notes.unshift({
-        id: Date.now(),
-        title: quickTitle,
-        content: "Blank note content. Click to edit...",
-        type: "plain",
-        createdAt: new Date().toLocaleDateString()
-      });
-      localStorage.setItem("projecthub.notes", JSON.stringify(notes));
-      window.dispatchEvent(new Event("notes-updated"));
-    } else if (quickAddType === "timelog") {
-      const saved = localStorage.getItem("projecthub.timelogs") || "[]";
-      const logs = JSON.parse(saved);
-      logs.push({
-        id: Date.now(),
-        title: quickTitle,
-        comment: "Logged from quick add shortcut",
-        time: 1.0,
-        createdAt: new Date().toLocaleDateString()
-      });
-      localStorage.setItem("projecthub.timelogs", JSON.stringify(logs));
-      window.dispatchEvent(new Event("timelog-added"));
+    try {
+      if (quickAddType === "task") {
+        let projects = await projectsApi.list(token);
+        let project = projects[0];
+        if (!project) {
+          project = await projectsApi.create(token, {
+            project_name: "General Project",
+            department: "General Operations",
+            description: "Default project created automatically for quick task adds"
+          });
+        }
+        
+        await tasksApi.create(token, {
+          project_id: project.project_id || project.id,
+          title: quickTitle,
+          priority: "MEDIUM",
+          status: "TODO",
+          due_date: new Date(Date.now() + 5*24*60*60*1000).toISOString()
+        });
+        window.dispatchEvent(new Event("task-added"));
+      } else if (quickAddType === "note") {
+        await notesApi.create(token, {
+          title: quickTitle,
+          content: "Blank note content. Click to edit...",
+          type: "plain"
+        });
+        window.dispatchEvent(new Event("notes-updated"));
+      } else if (quickAddType === "timelog") {
+        await timeTrackingApi.create(token, {
+          title: quickTitle,
+          comment: "Logged from quick add shortcut",
+          time: 1.0,
+          dateString: new Date().toLocaleDateString()
+        });
+        window.dispatchEvent(new Event("timelog-added"));
+      }
+
+      setQuickTitle("");
+      setIsQuickAddModalOpen(false);
+      alert(`Successfully added new ${quickAddType}!`);
+    } catch (err) {
+      console.error(`Failed to quick add ${quickAddType}:`, err);
+      alert(`Failed to add new ${quickAddType}. Ensure backend database is running.`);
     }
+  };
 
-    setQuickTitle("");
-    setIsQuickAddModalOpen(false);
-    alert(`Successfully added new ${quickAddType}!`);
+  const handleUpdateSettings = async (e) => {
+    e.preventDefault();
+    if (!settingsFirstName.trim() || !settingsLastName.trim() || !settingsEmail.trim() || !token) return;
+
+    try {
+      const updatedUser = await authApi.updateProfile(token, {
+        firstName: settingsFirstName,
+        lastName: settingsLastName,
+        email: settingsEmail,
+        password: settingsPassword || undefined
+      });
+
+      updateSessionUser(updatedUser);
+      setIsAccountSettingsModalOpen(false);
+      alert("Account settings updated successfully!");
+    } catch (err) {
+      console.error("Failed to update profile settings:", err);
+      alert(err.message || "Failed to update profile settings.");
+    }
   };
 
   return (
@@ -207,7 +305,7 @@ export default function DoubleSidebarLayout({ children }) {
       
       {/* 1. Left Narrow Blue Sidebar */}
       {!isCollapsed && (
-        <aside className="hidden md:flex flex-col items-center py-4 bg-[#4c0519] w-14 h-full shrink-0 select-none justify-between border-r border-[#881337]/10 z-20">
+        <aside className="hidden md:flex flex-col items-center py-4 bg-[#f8fafc] w-14 h-full shrink-0 select-none justify-between border-r border-slate-200/80 z-20">
           <div className="flex flex-col items-center gap-4 w-full">
             {/* Logo Container */}
             <div 
@@ -230,13 +328,13 @@ export default function DoubleSidebarLayout({ children }) {
               ))}
             </div>
 
-            <div className="w-8 h-[1px] bg-white/20 my-2"></div>
+            <div className="w-8 h-[1px] bg-slate-200/80 my-2"></div>
 
             {/* Apps and Quick Add */}
             <div className="flex flex-col items-center gap-3 w-full">
               <div 
                 onClick={() => setIsQuickAddModalOpen(true)}
-                className="w-6 h-6 flex items-center justify-center bg-white text-[#9d174d] rounded-full hover:scale-105 active:scale-95 cursor-pointer shadow transition-transform"
+                className="w-6 h-6 flex items-center justify-center bg-[#9d174d] text-white rounded-full hover:scale-105 active:scale-95 cursor-pointer shadow transition-transform"
                 title="Quick Add Task/Note"
               >
                 <Plus size={14} strokeWidth={3} />
@@ -246,27 +344,12 @@ export default function DoubleSidebarLayout({ children }) {
 
           {/* Bottom Utility Icons */}
           <div className="flex flex-col items-center gap-4 w-full relative">
-            <div 
-              onClick={() => setIsUpgradeModalOpen(true)}
-              className="w-9 h-9 flex items-center justify-center text-white/75 hover:text-white cursor-pointer hover:bg-white/10 rounded-xl"
-              title="Upgrade Premium"
-            >
-              <Diamond size={18} />
-            </div>
             
-            <div 
-              onClick={() => setIsSearchModalOpen(true)}
-              className="w-9 h-9 flex items-center justify-center text-white/75 hover:text-white cursor-pointer hover:bg-white/10 rounded-xl"
-              title="Search Spotlight"
-            >
-              <Search size={18} />
-            </div>
-
             {/* User Initials Circle / Profile Dropdown Trigger */}
             <div className="relative">
               <div 
                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                className="w-8 h-8 rounded-full bg-fuchsia-600 text-white font-semibold flex items-center justify-center text-xs border border-white/10 cursor-pointer hover:brightness-110 active:scale-95 transition-all"
+                className="w-8 h-8 rounded-full bg-fuchsia-600 text-white font-semibold flex items-center justify-center text-xs border border-slate-200/60 cursor-pointer hover:brightness-110 active:scale-95 transition-all"
               >
                 {initials}
               </div>
@@ -277,7 +360,13 @@ export default function DoubleSidebarLayout({ children }) {
                     <p className="font-bold text-slate-800">{fullName}</p>
                     <p className="text-[11px] text-slate-400 truncate">{user?.email || "user@projecthub.test"}</p>
                   </div>
-                  <button className="w-full px-3 py-2 text-slate-600 hover:bg-slate-50 flex items-center gap-2 text-left">
+                  <button 
+                    onClick={() => {
+                      setIsAccountSettingsModalOpen(true);
+                      setIsProfileDropdownOpen(false);
+                    }}
+                    className="w-full px-3 py-2 text-slate-600 hover:bg-slate-50 flex items-center gap-2 text-left"
+                  >
                     <SettingsIcon size={14} />
                     <span>Account Settings</span>
                   </button>
@@ -387,15 +476,15 @@ export default function DoubleSidebarLayout({ children }) {
       {/* 3. Right Content Panel */}
       <main className="flex-1 flex flex-col h-full overflow-hidden bg-white z-0">
         {/* Mobile Top Header */}
-        <div className="flex md:hidden items-center justify-between px-4 h-12 bg-[#4c0519] text-white shrink-0 border-b border-[#881337]/10 z-30 select-none">
+        <div className="flex md:hidden items-center justify-between px-4 h-12 bg-[#f8fafc] text-slate-800 shrink-0 border-b border-slate-200/80 z-30 select-none">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="p-1 hover:bg-white/10 rounded-lg cursor-pointer transition-colors"
+              className="p-1 hover:bg-slate-200/60 rounded-lg cursor-pointer transition-colors text-slate-500 hover:text-slate-800"
             >
               <Menu size={20} />
             </button>
-            <div className="flex items-center gap-1.5 font-bold tracking-tight text-white cursor-pointer" onClick={() => navigate("/my-work")}>
+            <div className="flex items-center gap-1.5 font-bold tracking-tight text-slate-900 cursor-pointer" onClick={() => navigate("/my-work")}>
               <img src="/logo.svg" className="w-8 h-8 object-contain" alt="ProjectHub Logo" />
               <span className="text-[13px] font-bold">ProjectHub</span>
             </div>
@@ -404,13 +493,13 @@ export default function DoubleSidebarLayout({ children }) {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsSearchModalOpen(true)}
-              className="p-1.5 hover:bg-white/10 rounded-lg cursor-pointer transition-colors"
+              className="p-1.5 hover:bg-slate-200/60 rounded-lg cursor-pointer transition-colors text-slate-500 hover:text-slate-800"
             >
               <Search size={16} />
             </button>
             <div
               onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-              className="w-7 h-7 rounded-full bg-fuchsia-600 text-white font-semibold flex items-center justify-center text-xs border border-white/20 cursor-pointer hover:brightness-110"
+              className="w-7 h-7 rounded-full bg-fuchsia-600 text-white font-semibold flex items-center justify-center text-xs border border-slate-200/60 cursor-pointer hover:brightness-110"
             >
               {initials}
             </div>
@@ -485,14 +574,14 @@ export default function DoubleSidebarLayout({ children }) {
           {/* Drawer content */}
           <div className="relative flex flex-col w-[280px] max-w-[85vw] h-full bg-white shadow-2xl z-10 animate-slide-in flex-shrink-0">
             {/* Drawer Header */}
-            <div className="flex items-center justify-between px-4 py-3 bg-[#4c0519] text-white shrink-0">
-              <div className="flex items-center gap-2 font-bold">
+            <div className="flex items-center justify-between px-4 py-3 bg-[#f8fafc] text-slate-800 shrink-0 border-b border-slate-200/80">
+              <div className="flex items-center gap-2 font-bold text-slate-900">
                 <img src="/logo.svg" className="w-8 h-8 object-contain" alt="ProjectHub Logo" />
-                <span className="text-sm">ProjectHub</span>
+                <span className="text-sm font-bold">ProjectHub</span>
               </div>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="p-1 hover:bg-white/10 rounded-lg cursor-pointer text-white"
+                className="p-1 hover:bg-slate-200/60 rounded-lg cursor-pointer text-slate-500 hover:text-slate-800"
               >
                 <X size={18} />
               </button>
@@ -643,25 +732,97 @@ export default function DoubleSidebarLayout({ children }) {
             </div>
             
             <div className="p-4 max-h-72 overflow-y-auto text-xs text-slate-500 flex flex-col gap-2">
-              <span className="font-bold text-[10px] text-slate-400 uppercase tracking-wider">Search suggestions</span>
-              <button 
-                onClick={() => { navigate("/my-tasks"); setIsSearchModalOpen(false); }} 
-                className="w-full text-left p-2 rounded hover:bg-slate-50 text-slate-700 font-semibold"
-              >
-                Go to Tasks checklist
-              </button>
-              <button 
-                onClick={() => { navigate("/notepad"); setIsSearchModalOpen(false); }} 
-                className="w-full text-left p-2 rounded hover:bg-slate-50 text-slate-700 font-semibold"
-              >
-                Go to Notepad documents
-              </button>
-              <button 
-                onClick={() => { navigate("/time-tracking"); setIsSearchModalOpen(false); }} 
-                className="w-full text-left p-2 rounded hover:bg-slate-50 text-slate-700 font-semibold"
-              >
-                Go to Time logs
-              </button>
+              {!searchQuery.trim() ? (
+                <>
+                  <span className="font-bold text-[10px] text-slate-400 uppercase tracking-wider">Search suggestions</span>
+                  <button 
+                    onClick={() => { navigate("/my-tasks"); setIsSearchModalOpen(false); }} 
+                    className="w-full text-left p-2 rounded hover:bg-slate-50 text-slate-700 font-semibold"
+                  >
+                    Go to Tasks checklist
+                  </button>
+                  <button 
+                    onClick={() => { navigate("/notepad"); setIsSearchModalOpen(false); }} 
+                    className="w-full text-left p-2 rounded hover:bg-slate-50 text-slate-700 font-semibold"
+                  >
+                    Go to Notepad documents
+                  </button>
+                  <button 
+                    onClick={() => { navigate("/time-tracking"); setIsSearchModalOpen(false); }} 
+                    className="w-full text-left p-2 rounded hover:bg-slate-50 text-slate-700 font-semibold"
+                  >
+                    Go to Time logs
+                  </button>
+                </>
+              ) : (
+                <>
+                  {filteredSearchProjects.length > 0 && (
+                    <div className="flex flex-col gap-1 mb-2">
+                      <span className="font-bold text-[9px] text-[#9d174d] uppercase tracking-wider">Projects</span>
+                      {filteredSearchProjects.map(p => (
+                        <button
+                          key={p.project_id || p.id}
+                          onClick={() => { navigate(`/projects/${p.project_id || p.id}`); setIsSearchModalOpen(false); }}
+                          className="w-full text-left p-2 rounded hover:bg-slate-50 text-slate-700 font-semibold truncate"
+                        >
+                          💼 {p.project_name || p.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {filteredSearchTasks.length > 0 && (
+                    <div className="flex flex-col gap-1 mb-2">
+                      <span className="font-bold text-[9px] text-[#9d174d] uppercase tracking-wider">Tasks</span>
+                      {filteredSearchTasks.map(t => (
+                        <button
+                          key={t.task_id || t.id}
+                          onClick={() => { navigate("/my-tasks"); setIsSearchModalOpen(false); }}
+                          className="w-full text-left p-2 rounded hover:bg-slate-50 text-slate-700 font-semibold truncate"
+                        >
+                          ☑️ {t.title}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {filteredSearchNotes.length > 0 && (
+                    <div className="flex flex-col gap-1 mb-2">
+                      <span className="font-bold text-[9px] text-[#9d174d] uppercase tracking-wider">Notes</span>
+                      {filteredSearchNotes.map(n => (
+                        <button
+                          key={n.id}
+                          onClick={() => { navigate("/notepad"); setIsSearchModalOpen(false); }}
+                          className="w-full text-left p-2 rounded hover:bg-slate-50 text-slate-700 font-semibold truncate"
+                        >
+                          📄 {n.title}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {filteredSearchTeam.length > 0 && (
+                    <div className="flex flex-col gap-1 mb-2">
+                      <span className="font-bold text-[9px] text-[#9d174d] uppercase tracking-wider">Team</span>
+                      {filteredSearchTeam.map(m => (
+                        <button
+                          key={m.user_id || m.id}
+                          onClick={() => { navigate("/team"); setIsSearchModalOpen(false); }}
+                          className="w-full text-left p-2 rounded hover:bg-slate-50 text-slate-700 font-semibold truncate"
+                        >
+                          👤 {m.first_name} {m.last_name} ({m.email})
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {!hasSearchResults && (
+                    <div className="py-4 text-center text-slate-400 font-medium">
+                      No results found for "{searchQuery}"
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -805,6 +966,83 @@ export default function DoubleSidebarLayout({ children }) {
                   className="px-4 py-2 bg-[#9d174d] text-white rounded-lg text-xs font-semibold hover:bg-[#be185d]"
                 >
                   Save Add
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Account Settings Modal */}
+      {isAccountSettingsModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-[2px] flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white border border-slate-200 rounded-xl p-6 w-[400px] max-w-full shadow-xl text-left">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-bold text-slate-800">Account Settings</h3>
+              <button onClick={() => setIsAccountSettingsModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateSettings} className="flex flex-col gap-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">First Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={settingsFirstName}
+                    onChange={(e) => setSettingsFirstName(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:border-[#9d174d] outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Last Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={settingsLastName}
+                    onChange={(e) => setSettingsLastName(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:border-[#9d174d] outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">Email Address</label>
+                <input
+                  type="email"
+                  required
+                  value={settingsEmail}
+                  onChange={(e) => setSettingsEmail(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:border-[#9d174d] outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">New Password (leave blank to keep current)</label>
+                <input
+                  type="password"
+                  value={settingsPassword}
+                  onChange={(e) => setSettingsPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:border-[#9d174d] outline-none"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 mt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsAccountSettingsModalOpen(false)}
+                  className="px-4 py-2 border border-slate-200 text-slate-600 rounded-lg text-xs font-semibold hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-[#9d174d] text-white rounded-lg text-xs font-semibold hover:bg-[#be185d]"
+                >
+                  Save Changes
                 </button>
               </div>
             </form>
