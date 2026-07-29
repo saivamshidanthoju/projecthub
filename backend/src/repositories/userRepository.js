@@ -73,8 +73,33 @@ const createUser = async ({
     return result.rows[0];
 };
 
+const updateUser = async (user_id, { first_name, last_name, email, password_hash }) => {
+    let query;
+    let values;
+    if (password_hash) {
+        query = `
+            UPDATE users
+            SET first_name = $1, last_name = $2, email = $3, password_hash = $4
+            WHERE user_id = $5
+            RETURNING user_id, organization_id, role_id, first_name, last_name, email, is_active, created_at;
+        `;
+        values = [first_name, last_name, email, password_hash, user_id];
+    } else {
+        query = `
+            UPDATE users
+            SET first_name = $1, last_name = $2, email = $3
+            WHERE user_id = $4
+            RETURNING user_id, organization_id, role_id, first_name, last_name, email, is_active, created_at;
+        `;
+        values = [first_name, last_name, email, user_id];
+    }
+    const result = await db.query(query, values);
+    return result.rows[0];
+};
+
 module.exports = {
     findUserByEmail,
     findUserById,
-    createUser
+    createUser,
+    updateUser
 };

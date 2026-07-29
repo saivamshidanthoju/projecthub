@@ -17,6 +17,12 @@ router.get(
     authController.getCurrentUser
 );  
 
+router.put(
+    "/profile",
+    authenticateToken,
+    authController.updateProfile
+);
+
 // Admin Only Route
 router.get(
     "/admin",

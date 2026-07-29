@@ -120,7 +120,7 @@ async function checkAndSetupDatabase() {
             ADD COLUMN IF NOT EXISTS department VARCHAR(100) DEFAULT 'General Operations'
         `);
         
-        console.log("Schema validation complete.");
+        console.log("Schema validation complete (including custom my_work, notes, time_logs tables).");
 
         // Seeding Roles
         await targetPool.query(`

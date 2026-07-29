@@ -194,3 +194,53 @@ CREATE TABLE IF NOT EXISTS calendar_events (
 
 CREATE INDEX IF NOT EXISTS idx_events_organization_id ON calendar_events(organization_id);
 CREATE INDEX IF NOT EXISTS idx_events_date ON calendar_events(event_date);
+
+-- My Work Column Items Table
+CREATE TABLE IF NOT EXISTS my_work (
+    work_id SERIAL PRIMARY KEY,
+    organization_id INT NOT NULL,
+    user_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    column_key VARCHAR(50) NOT NULL,
+    assigned_user VARCHAR(100) DEFAULT 'Me',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_work_organization FOREIGN KEY (organization_id) REFERENCES organizations(organization_id) ON DELETE CASCADE,
+    CONSTRAINT fk_work_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_my_work_user_id ON my_work(user_id);
+CREATE INDEX IF NOT EXISTS idx_my_work_organization_id ON my_work(organization_id);
+
+-- Notepad Notes Table
+CREATE TABLE IF NOT EXISTS notes (
+    note_id SERIAL PRIMARY KEY,
+    organization_id INT NOT NULL,
+    user_id INT NOT NULL,
+    title VARCHAR(255) DEFAULT 'Untitled',
+    content TEXT,
+    type VARCHAR(50) DEFAULT 'plain',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_note_organization FOREIGN KEY (organization_id) REFERENCES organizations(organization_id) ON DELETE CASCADE,
+    CONSTRAINT fk_note_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_notes_user_id ON notes(user_id);
+CREATE INDEX IF NOT EXISTS idx_notes_organization_id ON notes(organization_id);
+
+-- Time Logs Table
+CREATE TABLE IF NOT EXISTS time_logs (
+    log_id SERIAL PRIMARY KEY,
+    organization_id INT NOT NULL,
+    user_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    comment TEXT,
+    time_reported NUMERIC(4, 2) NOT NULL,
+    log_date DATE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_log_organization FOREIGN KEY (organization_id) REFERENCES organizations(organization_id) ON DELETE CASCADE,
+    CONSTRAINT fk_log_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_time_logs_user_id ON time_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_time_logs_organization_id ON time_logs(organization_id);

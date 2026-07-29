@@ -163,9 +163,56 @@ const adminTestEndpoint = async (req, res) => {
     });
 };
 
+const updateProfile = async (req, res) => {
+    try {
+        const user_id = req.user.user_id;
+        const { first_name, last_name, email, password } = req.body;
+
+        if (!first_name || !last_name || !email) {
+            return res.status(400).json({
+                success: false,
+                message: "First name, last name, and email are required."
+            });
+        }
+
+        const existingUser = await userRepository.findUserByEmail(email);
+        if (existingUser && existingUser.user_id !== user_id) {
+            return res.status(409).json({
+                success: false,
+                message: "Email is already in use by another account."
+            });
+        }
+
+        let password_hash = null;
+        if (password && password.trim() !== "") {
+            password_hash = await bcrypt.hash(password, 10);
+        }
+
+        const user = await userRepository.updateUser(user_id, {
+            first_name,
+            last_name,
+            email,
+            password_hash
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Profile updated successfully.",
+            user
+        });
+    } catch (error) {
+        console.error("Error updating profile:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error."
+        });
+    }
+};
+
 module.exports = {
     register,
     login,
     getCurrentUser,
-    adminTestEndpoint
+    adminTestEndpoint,
+    updateProfile
 };
