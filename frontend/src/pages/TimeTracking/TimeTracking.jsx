@@ -193,16 +193,6 @@ export default function TimeTracking() {
             >
               <Maximize2 size={14} />
             </button>
-            <div className="w-[1px] h-4 bg-slate-200"></div>
-
-            <button 
-              onClick={() => alert("Select a team member view for timeline logs.")}
-              className="flex items-center gap-1 px-2 py-1 text-slate-500 hover:text-slate-700 rounded hover:bg-slate-100 text-[12px] font-medium transition-colors"
-            >
-              <User size={13} className="text-slate-400" />
-              <span>View for</span>
-              <ChevronDown size={11} className="text-slate-400" />
-            </button>
           </div>
         </div>
 
@@ -220,30 +210,6 @@ export default function TimeTracking() {
         <div className="px-6 py-3 border-b border-[#eef1f6] bg-white flex items-center justify-between select-none shrink-0">
           <div className="flex items-center gap-3">
             <span className="text-[14px] font-bold text-[#0f172a] capitalize">{getDateLabel()}</span>
-            
-            <div className="flex items-center gap-1 border border-slate-200 rounded-md p-[2px] bg-slate-50">
-              <button 
-                onClick={handlePrevDay}
-                className="p-0.5 text-slate-500 hover:text-slate-700 hover:bg-slate-200 rounded transition-all"
-                title="Previous Day"
-              >
-                <ChevronLeft size={13} />
-              </button>
-              <button 
-                onClick={handleResetToday}
-                className="p-0.5 text-slate-500 hover:text-slate-700 hover:bg-slate-200 rounded transition-all"
-                title="Reset to Today"
-              >
-                <CalendarIcon size={12} className="text-slate-400" />
-              </button>
-              <button 
-                onClick={handleNextDay}
-                className="p-0.5 text-slate-500 hover:text-slate-700 hover:bg-slate-200 rounded transition-all"
-                title="Next Day"
-              >
-                <ChevronRight size={13} />
-              </button>
-            </div>
           </div>
 
           <div className="flex items-center gap-6 text-[12px] font-semibold text-slate-500">

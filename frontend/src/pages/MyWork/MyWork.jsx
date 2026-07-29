@@ -196,22 +196,6 @@ export default function MyWork() {
             <button onClick={() => navigate("/calendar")} className="p-1 text-slate-400 hover:text-slate-600 rounded hover:bg-slate-100" title="Calendar list view">
               <CalendarIcon size={14} className="text-slate-400" />
             </button>
-            
-            <div className="w-[1px] h-4 bg-slate-200"></div>
-
-            {/* View for Filter dropdown */}
-            <div className="relative group">
-              <button className="flex items-center gap-1 px-2 py-1 text-slate-500 hover:text-slate-700 rounded hover:bg-slate-100 text-[12px] font-medium transition-colors">
-                <User size={13} className="text-slate-400" />
-                <span>View: {filterUser}</span>
-                <ChevronDown size={11} className="text-slate-400" />
-              </button>
-              <div className="absolute left-0 mt-1 hidden group-hover:block w-32 bg-white border border-slate-200 rounded-lg shadow-lg py-1 z-30 text-xs text-left">
-                <button onClick={() => setFilterUser("All Work")} className="w-full px-3 py-1.5 hover:bg-slate-50 text-slate-600 block">All Work</button>
-                <button onClick={() => setFilterUser("Me")} className="w-full px-3 py-1.5 hover:bg-slate-50 text-slate-600 block">Assigned to Me</button>
-                <button onClick={() => setFilterUser("Shared")} className="w-full px-3 py-1.5 hover:bg-slate-50 text-slate-600 block">Shared Tasks</button>
-              </div>
-            </div>
           </div>
         </div>
 

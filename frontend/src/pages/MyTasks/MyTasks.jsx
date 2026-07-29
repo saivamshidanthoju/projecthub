@@ -271,16 +271,6 @@ export default function MyTasks() {
             >
               <Search size={14} />
             </button>
-            <div className="w-[1px] h-4 bg-slate-200"></div>
-
-            <button 
-              onClick={() => alert("Select view for filtering team tasks.")}
-              className="flex items-center gap-1 px-2 py-1 text-slate-500 hover:text-slate-700 rounded hover:bg-slate-100 text-[12px] font-medium transition-colors"
-            >
-              <User size={13} className="text-slate-400" />
-              <span>View for</span>
-              <ChevronDown size={11} className="text-slate-400" />
-            </button>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">

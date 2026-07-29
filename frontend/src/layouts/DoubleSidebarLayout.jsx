@@ -411,34 +411,6 @@ export default function DoubleSidebarLayout({ children }) {
                   </div>
                 );
               })}
-
-              {/* Recent Item Dropdown */}
-              <div className="relative">
-                <div
-                  onClick={() => setIsRecentDropdownOpen(!isRecentDropdownOpen)}
-                  className="flex items-center gap-3 px-3 py-[7px] text-[13px] rounded-lg transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-800 cursor-pointer"
-                >
-                  <History size={15} className="text-slate-500" />
-                  <span>Recent</span>
-                </div>
-                {isRecentDropdownOpen && (
-                  <div className="absolute left-4 top-8 w-48 bg-white border border-slate-200 rounded-lg shadow-lg py-1 text-xs text-slate-600 z-50 animate-fade-in text-left">
-                    <p className="px-2.5 py-1.5 font-bold text-slate-400 uppercase tracking-wider text-[9px] border-b border-slate-100">Recently Visited</p>
-                    <button onClick={() => { navigate("/my-work"); setIsRecentDropdownOpen(false); }} className="w-full text-left px-3 py-1.5 hover:bg-slate-50">My Work</button>
-                    <button onClick={() => { navigate("/my-tasks"); setIsRecentDropdownOpen(false); }} className="w-full text-left px-3 py-1.5 hover:bg-slate-50">My Tasks</button>
-                    <button onClick={() => { navigate("/notepad"); setIsRecentDropdownOpen(false); }} className="w-full text-left px-3 py-1.5 hover:bg-slate-50">Notepad</button>
-                  </div>
-                )}
-              </div>
-
-              {/* More Item */}
-              <div
-                onClick={() => alert("ProjectHub Workspace features are fully expanded.")}
-                className="flex items-center gap-3 px-3 py-[7px] text-[13px] rounded-lg transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-800 cursor-pointer"
-              >
-                <ChevronDown size={15} className="text-slate-500" />
-                <span>More</span>
-              </div>
             </nav>
 
             {/* Views Section */}
